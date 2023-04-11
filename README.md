@@ -1,4 +1,4 @@
-# simple-vedio-notifications
+# simple-notifications
 一个简单的订阅通知转发服务，预期功能包括
 - 订阅UP的新投稿视频通知
 - 支持多种通知方式
