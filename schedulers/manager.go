@@ -8,21 +8,22 @@ import (
 )
 
 type SchedulerManager struct {
-	Schedulers map[int]Scheduler // key为数据库ID
+	Schedulers map[int]*Scheduler // key为数据库ID
 	Config     *config.Config
 	lock       sync.RWMutex
 	start      bool
+	Ctx        context.Context
 }
 
 func NewSchedulerManager(ctx context.Context) *SchedulerManager {
-	return &SchedulerManager{}
+	return &SchedulerManager{Ctx: ctx, Schedulers: make(map[int]*Scheduler)}
 }
 
-func (sm *SchedulerManager) AddScheduler(s Scheduler) (*SchedulerManager, error) {
+func (sm *SchedulerManager) AddScheduler(s *Scheduler) (*SchedulerManager, error) {
 	sm.lock.RLock()
 	defer sm.lock.RUnlock()
-	s, ok := sm.Schedulers[s.DBIndex]
-	if !ok {
+	_, ok := sm.Schedulers[s.DBIndex]
+	if ok {
 		return sm, SchedulerIsExistError
 	}
 	sm.Schedulers[s.DBIndex] = s
@@ -32,10 +33,10 @@ func (sm *SchedulerManager) AddScheduler(s Scheduler) (*SchedulerManager, error)
 	return sm, nil
 }
 
-func (sm *SchedulerManager) StopScheduler(s Scheduler) (*SchedulerManager, error) {
+func (sm *SchedulerManager) StopScheduler(s *Scheduler) (*SchedulerManager, error) {
 	sm.lock.RLock()
 	defer sm.lock.RUnlock()
-	s, ok := sm.Schedulers[s.DBIndex]
+	_, ok := sm.Schedulers[s.DBIndex]
 	if !ok {
 		return sm, SchedulerIsExistError
 	}
