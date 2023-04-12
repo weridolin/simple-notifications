@@ -14,12 +14,17 @@ type Ticker struct {
 	Executor          *cron.Cron
 }
 
+func NewTicker(platform string, maxSchedulerCount int, schedulers []*schedulers.Scheduler) *Ticker {
+	t := &Ticker{platform, maxSchedulerCount, schedulers, cron.New()}
+	return t
+}
+
 func (t *Ticker) Start() {
 	t.Executor.Start()
 }
 
 func (t *Ticker) AddScheduler(s *schedulers.Scheduler) {
-	// t.Executor.Stop()
+	// t.Executor.a
 }
 
 func (t *Ticker) Stop() {
@@ -27,11 +32,13 @@ func (t *Ticker) Stop() {
 }
 
 type TickerPool struct {
-	MaxTickerCount int
-	SchedulerCache map[int]*schedulers.Scheduler
-	TickerCache    map[string][]*Ticker
-	RunningTicker  []*Ticker
-	WaitingTicker  []*Ticker
+	MaxTickerCount   int
+	SchedulerCache   map[int]*schedulers.Scheduler
+	TickerCache      map[string][]*Ticker
+	RunningTicker    []*Ticker
+	WaitingTicker    []*Ticker
+	RunningScheduler []*schedulers.Scheduler
+	WaitingScheduler []*schedulers.Scheduler
 }
 
 func NewTickerPool(maxTickerCount int) *TickerPool {
@@ -41,6 +48,8 @@ func NewTickerPool(maxTickerCount int) *TickerPool {
 		make(map[string][]*Ticker),
 		make([]*Ticker, 0),
 		make([]*Ticker, 0),
+		make([]*schedulers.Scheduler, 0),
+		make([]*schedulers.Scheduler, 0),
 	}
 }
 
@@ -90,11 +99,23 @@ func (tp *TickerPool) SubmitScheduler(s *schedulers.Scheduler) {
 	}
 
 	if _, ok := tp.TickerCache[s.PlatForm]; !ok {
-		t := &Ticker{s.PlatForm, 10, []*schedulers.Scheduler{s}, cron.New()}
+		t := &Ticker{s.PlatForm, 2, []*schedulers.Scheduler{s}, cron.New()}
 		tp.AddTicker(t)
 	} else {
+		// 每个platform暂时最多对应两个ticker,每个ticker最多对应2个scheduler
 		// 其他策略 //TODO
-		tp.TickerCache[s.PlatForm][0].AddScheduler(s)
+		if len(tp.TickerCache[s.PlatForm]) > 2 {
+			tp.WaitingScheduler = append(tp.WaitingScheduler, s)
+		} else {
+			for _, t := range tp.TickerCache[s.PlatForm] {
+				if len(t.ScheduLerCache) < t.MaxSchedulerCount {
+					t.AddScheduler(s)
+					tp.RunningScheduler = append(tp.RunningScheduler, s)
+					return
+				}
+			}
+			tp.WaitingScheduler = append(tp.WaitingScheduler, s)
+		}
 	}
 }
 
