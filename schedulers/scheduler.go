@@ -10,12 +10,12 @@ import (
 type Scheduler struct {
 	Period   tools.Period
 	PlatForm string
-	Ups      []string
+	Ups      map[string]interface{}
 	Status   int8 // 0 停止 1 启动  2 暂停
 	DBIndex  int  //唯一索引
 }
 
-func NewScheduler(period tools.Period, platform string, ups []string, status int8, dbindex int) *Scheduler {
+func NewScheduler(period tools.Period, platform string, ups map[string]interface{}, status int8, dbindex int) *Scheduler {
 	return &Scheduler{period, platform, ups, status, dbindex}
 }
 
@@ -24,7 +24,7 @@ func (s *Scheduler) Start() {
 	var t Task
 	switch s.PlatForm {
 	case "bilibili":
-		t = &bilibili.BiliBiliTask{UpName: s.Ups, Period: s.Period, UpId: 9824766}
+		t = &bilibili.BiliBiliTask{Period: s.Period, Ups: s.Ups}
 	case "youtube":
 		fmt.Println("start youtube scheduler...", s)
 	}

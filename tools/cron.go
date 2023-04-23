@@ -9,7 +9,7 @@ type Period struct {
 }
 
 var (
-	Minutely = "@minutely"
+	Minutely = "*/1 * * * *"
 	Hourly   = "@hourly"
 	Daily    = "@daily"
 	Weekly   = "@weekly"

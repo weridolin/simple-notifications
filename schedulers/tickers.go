@@ -26,7 +26,9 @@ func (t *Ticker) Start() {
 func (t *Ticker) AddScheduler(s *Scheduler) {
 	fmt.Println("add and start scheduler...", s)
 	t.Executor.AddFunc(s.Period.Cron, func() {
+		fmt.Println("start run scheduler... platform", s.PlatForm, "ups", s.Ups, "period", s.Period.Cron, "status")
 		s.Start()
+		fmt.Println("run scheduler end...")
 	})
 }
 

@@ -79,44 +79,46 @@ type VideoInfo struct {
 }
 
 type BiliBiliTask struct {
-	UpName []string
+	Ups    map[string]interface{}
 	Period tools.Period
-	UpId   int
 }
 
 func (t *BiliBiliTask) Run() {
-	// 获取up主id
-
 	//获取视频信息
 	client := &http.Client{
 		Timeout: 10 * time.Second,
 	}
-	var data map[string]interface{}
-	url := fmt.Sprintf(GetVideoInfoUrl, t.UpId)
-	req, _ := http.NewRequest("GET", url, nil)
-	req.Header.Add("Host", Host)
-	req.Header.Add("Origin", Origin)
-	req.Header.Add("Referer", fmt.Sprintf(Referer, t.UpId))
-	req.Header.Add("User-Agent", GetRandomUserAgent())
-	resp, http_err := client.Do(req)
-	if http_err != nil {
-		fmt.Printf("http get err = %v\n", http_err)
-		panic(http_err)
-	}
-	defer resp.Body.Close()
-	body, _ := ioutil.ReadAll(resp.Body)
-	err := json.Unmarshal([]byte(body), &data)
-	if err != nil {
-		fmt.Printf("unmarshal err = %v\n", err)
+	for up_name, up_id := range t.Ups {
+		fmt.Println("up_name = ", up_name, "up_id = ", up_id)
+		var data map[string]interface{}
+		url := fmt.Sprintf(GetVideoInfoUrl, up_id)
+		fmt.Println("url = ", url)
+		req, _ := http.NewRequest("GET", url, nil)
+		req.Header.Add("Host", Host)
+		req.Header.Add("Origin", Origin)
+		req.Header.Add("Referer", fmt.Sprintf(Referer, up_id))
+		req.Header.Add("User-Agent", GetRandomUserAgent())
+		resp, http_err := client.Do(req)
+		if http_err != nil {
+			fmt.Printf("http get err = %v\n", http_err)
+			panic(http_err)
+		}
+		defer resp.Body.Close()
+		body, _ := ioutil.ReadAll(resp.Body)
+		err := json.Unmarshal([]byte(body), &data)
+		if err != nil {
+			fmt.Printf("unmarshal err = %v\n", err)
+		}
+
+		// 将返回的结果转换为结构体
+		VideoListResponse := data["data"].(map[string]interface{})["list"].(map[string]interface{})["vlist"].([]interface{})
+		var videoInfoList []VideoInfo
+		if err := mapstructure.Decode(VideoListResponse, &videoInfoList); err != nil {
+			panic(err)
+		}
+		fmt.Println("获取 up ->", up_name, "作品信息", videoInfoList)
 	}
 
-	// 将返回的结果转换为结构体
-	VideoListResponse := data["data"].(map[string]interface{})["list"].(map[string]interface{})["vlist"].([]interface{})
-	var videoInfoList []VideoInfo
-	if err := mapstructure.Decode(VideoListResponse, &videoInfoList); err != nil {
-		panic(err)
-	}
-	fmt.Println(">>>", videoInfoList)
 	// return videoInfoList
 }
 
