@@ -1,30 +1,33 @@
-package tickers
+package schedulers
 
 import (
 	"fmt"
 
 	"github.com/robfig/cron/v3"
-	schedulers "github.com/weridolin/simple-vedio-notifications/schedulers"
 )
 
 type Ticker struct {
 	PlatForm          string
 	MaxSchedulerCount int
-	ScheduLerCache    []*schedulers.Scheduler
+	ScheduLerCache    []*Scheduler
 	Executor          *cron.Cron
 }
 
-func NewTicker(platform string, maxSchedulerCount int, schedulers []*schedulers.Scheduler) *Ticker {
+func NewTicker(platform string, maxSchedulerCount int, schedulers []*Scheduler) *Ticker {
 	t := &Ticker{platform, maxSchedulerCount, schedulers, cron.New()}
 	return t
 }
 
 func (t *Ticker) Start() {
+	fmt.Println("start ticker...")
 	t.Executor.Start()
 }
 
-func (t *Ticker) AddScheduler(s *schedulers.Scheduler) {
-	// t.Executor.a
+func (t *Ticker) AddScheduler(s *Scheduler) {
+	fmt.Println("add and start scheduler...", s)
+	t.Executor.AddFunc(s.Period.Cron, func() {
+		s.Start()
+	})
 }
 
 func (t *Ticker) Stop() {
@@ -33,23 +36,23 @@ func (t *Ticker) Stop() {
 
 type TickerPool struct {
 	MaxTickerCount   int
-	SchedulerCache   map[int]*schedulers.Scheduler
+	SchedulerCache   map[int]*Scheduler
 	TickerCache      map[string][]*Ticker
 	RunningTicker    []*Ticker
 	WaitingTicker    []*Ticker
-	RunningScheduler []*schedulers.Scheduler
-	WaitingScheduler []*schedulers.Scheduler
+	RunningScheduler []*Scheduler
+	WaitingScheduler []*Scheduler
 }
 
 func NewTickerPool(maxTickerCount int) *TickerPool {
 	return &TickerPool{
 		maxTickerCount,
-		make(map[int]*schedulers.Scheduler),
+		make(map[int]*Scheduler),
 		make(map[string][]*Ticker),
 		make([]*Ticker, 0),
 		make([]*Ticker, 0),
-		make([]*schedulers.Scheduler, 0),
-		make([]*schedulers.Scheduler, 0),
+		make([]*Scheduler, 0),
+		make([]*Scheduler, 0),
 	}
 }
 
@@ -93,14 +96,17 @@ func (tp *TickerPool) RemoveTicker(ticker *Ticker) {
 	fmt.Println("remove ticker...")
 }
 
-func (tp *TickerPool) SubmitScheduler(s *schedulers.Scheduler) {
+func (tp *TickerPool) SubmitScheduler(s *Scheduler) {
 	if _, ok := tp.SchedulerCache[s.DBIndex]; !ok {
 		tp.SchedulerCache[s.DBIndex] = s
 	}
 
 	if _, ok := tp.TickerCache[s.PlatForm]; !ok {
-		t := &Ticker{s.PlatForm, 2, []*schedulers.Scheduler{s}, cron.New()}
+		t := &Ticker{s.PlatForm, 2, []*Scheduler{s}, cron.New()}
 		tp.AddTicker(t)
+		t.AddScheduler(s)
+		tp.RunningScheduler = append(tp.RunningScheduler, s)
+
 	} else {
 		// 每个platform暂时最多对应两个ticker,每个ticker最多对应2个scheduler
 		// 其他策略 //TODO
@@ -108,6 +114,7 @@ func (tp *TickerPool) SubmitScheduler(s *schedulers.Scheduler) {
 			tp.WaitingScheduler = append(tp.WaitingScheduler, s)
 		} else {
 			for _, t := range tp.TickerCache[s.PlatForm] {
+				// 每个ticker最多对应2个scheduler，判断scheduler是否已经满了
 				if len(t.ScheduLerCache) < t.MaxSchedulerCount {
 					t.AddScheduler(s)
 					tp.RunningScheduler = append(tp.RunningScheduler, s)

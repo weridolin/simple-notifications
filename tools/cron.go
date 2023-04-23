@@ -4,6 +4,10 @@ import "fmt"
 
 //目前可供选择的计划，暂时不支持自定义
 
+type Period struct {
+	Cron string
+}
+
 var (
 	Minutely = "@minutely"
 	Hourly   = "@hourly"

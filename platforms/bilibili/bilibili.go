@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/mitchellh/mapstructure"
+	tools "github.com/weridolin/simple-vedio-notifications/tools"
 )
 
 const (
@@ -78,12 +79,14 @@ type VideoInfo struct {
 }
 
 type BiliBiliTask struct {
-	UpName string
-	Start  string
+	UpName []string
+	Period tools.Period
 	UpId   int
 }
 
 func (t *BiliBiliTask) Run() {
+	// 获取up主id
+
 	//获取视频信息
 	client := &http.Client{
 		Timeout: 10 * time.Second,

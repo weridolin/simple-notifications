@@ -4,17 +4,42 @@ import (
 	"context"
 	"fmt"
 
-	schedulers "github.com/weridolin/simple-vedio-notifications/schedulers"
-	tools "github.com/weridolin/simple-vedio-notifications/tools"
+	// schedulers "github.com/weridolin/simple-vedio-notifications/schedulers"
+	"time"
+
+	"github.com/robfig/cron/v3"
+	"github.com/weridolin/simple-vedio-notifications/schedulers"
+	"github.com/weridolin/simple-vedio-notifications/tools"
 )
 
+func TestCron() {
+	c := cron.New()
+	i := 1
+
+	c.Start()
+
+	EntryID, err := c.AddFunc("*/1 * * * *", func() {
+		fmt.Println(time.Now(), "每分钟执行一次", i)
+		i++
+	})
+	fmt.Println(time.Now(), EntryID, err)
+
+	c.Stop()
+	time.Sleep(time.Minute * 1)
+	time.Sleep(time.Minute * 2)
+}
+
 func main() {
-	ctx := context.Background()
+	// TestCron()
+	ctx := context.WithValue(context.Background(), "tp", schedulers.NewTickerPool(1))
+	// tickerPool := tickers.NewTickerPool(1)
+	fmt.Println(ctx.Value("tp"))
 	uuid := tools.GetUUID()
 	manager := schedulers.NewSchedulerManager(ctx, uuid)
-	scheduler := schedulers.NewScheduler(schedulers.Period{Cron: "@hourly"}, "bilibili", []string{"敬汉卿"}, 0, 1)
+	scheduler := schedulers.NewScheduler(tools.Period{Cron: tools.Minutely}, "bilibili", []string{"敬汉卿"}, 0, 1)
 	manager.AddScheduler(scheduler)
 	manager.StartAll()
-	fmt.Println(manager.Schedulers, manager.PlatFormSchedulerCache)
-
+	// fmt.Println(manager.Schedulers, manager.PlatFormSchedulerCache)
+	// TestCron()
+	time.Sleep(time.Minute * 2)
 }

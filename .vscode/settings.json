@@ -1,5 +1,8 @@
 {
     "cSpell.words": [
+        "bilibili",
+        "dbindex",
         "mapstructure"
-    ]
+    ],
+    "vue.features.codeActions.enable": false
 }
