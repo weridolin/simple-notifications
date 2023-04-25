@@ -10,9 +10,9 @@ import (
 
 type User struct {
 	gorm.Model
-	Username     string `gorm:"uniqueIndex;not null;comment:用户名;size:256" json:"username" binding:"exists,alphanum,min=4,max=255" form:"username"`
-	Password     string `gorm:"not null;comment:密码" json:"password" binding:"required,min=8,max=255" form:"password"`
-	Email        string `gorm:"comment:邮箱" json:"email" binding:"exists,email" form:"email"`
+	Username     string `gorm:"uniqueIndex;not null;comment:用户名;size:256" json:"username" binding:"alphanum,min=4,max=255" form:"username"`
+	Password     string `gorm:"not null;comment:密码" json:"password" binding:"required,min=4,max=255" form:"password"`
+	Email        string `gorm:"comment:邮箱" json:"email" binding:"email" form:"email"`
 	Phone        string `gorm:"comment:手机号" json:"phone" form:"phone"`
 	Avatar       string `gorm:"comment:头像连接" json:"avatar" form:"avatar"`
 	Role         int    `gorm:"comment:角色" json:"role" form:"role"`
@@ -46,14 +46,12 @@ func (u *User) Bind(c *gin.Context) error {
 	return nil
 }
 
-// func (u *User) QueryFirst() (User, error) {
-// 	DB.Where("username = ?", u.Username).First(&u)
-// 	if u.ID == 0 {
-// 		return *u, errors.New("用户不存在")
-// 	} else {
-// 		return *u, nil
-// 	}
-// }
+func QueryFirst(condition interface{}) (User, error) {
+	db := GetDB()
+	var user User
+	err := db.Where(condition).First(&user).Error
+	return user, err
+}
 
 func (u *User) Delete() error {
 	DB.Where("id = ?", u.ID).Delete(&u)
