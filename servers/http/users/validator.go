@@ -21,25 +21,23 @@ func (u *LoginRequestValidator) Bind(c *gin.Context) error {
 	return nil
 }
 
-func (u *LoginRequestValidator) CheckPWd() (database.User, error) {
+func (u *LoginRequestValidator) CheckPWd() (*database.User, error) {
 	var user database.User
 	var err error
 	if tools.IsEmail(u.Count) {
 		user, err = database.QueryFirst(&database.User{Email: u.Count})
 		if err != nil {
-			return database.User{}, errors.New("用户不存在")
+			return nil, errors.New("邮箱不存在")
 		}
 	} else {
 		user, err = database.QueryFirst(&database.User{Username: u.Count})
 		if err != nil {
-			return database.User{}, errors.New("用户不存在")
+			return nil, errors.New("用户名不存在")
 		}
 	}
 	if user.Password != tools.GetMD5Hash(u.Password) {
-		return database.User{}, errors.New("密码错误")
+		return nil, errors.New("密码错误")
 	}
 
-	// 生成JWT TOKEN
-
-	return user, nil
+	return &user, nil
 }

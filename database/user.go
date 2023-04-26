@@ -2,6 +2,7 @@ package database
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/gin-gonic/gin"
 	"github.com/weridolin/simple-vedio-notifications/tools"
@@ -50,6 +51,7 @@ func QueryFirst(condition interface{}) (User, error) {
 	db := GetDB()
 	var user User
 	err := db.Where(condition).First(&user).Error
+	fmt.Println(user, ">>>", err)
 	return user, err
 }
 

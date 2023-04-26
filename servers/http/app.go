@@ -9,13 +9,24 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/weridolin/simple-vedio-notifications/servers/http/middlewares"
 	"github.com/weridolin/simple-vedio-notifications/servers/http/users"
 )
 
 func Start() {
 	r := gin.Default()
 	v1 := r.Group("/api/v1")
-	users.RouteRegister(v1.Group("/auth"))
+	v1.GET("/", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "v1 api",
+		})
+	})
+
+	users.UnAuthorizationRouteRegister(v1.Group("/auth"))
+
+	v1.Use(middlewares.AuthorizationMiddleware())
+	users.AuthorizationRouteRegister(v1.Group("/auth"))
+
 	srv := &http.Server{
 		Addr:    ":8080",
 		Handler: r,
