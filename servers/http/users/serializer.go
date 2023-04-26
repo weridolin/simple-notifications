@@ -21,7 +21,7 @@ type UserResponseWithTokenSerializer struct {
 	RefreshToken string `json:"refresh_token"`
 }
 
-func (u *UserResponseSerializer) FromUserModel(m *database.User) UserResponseSerializer {
+func (u UserResponseSerializer) FromUserModel(m *database.User) UserResponseSerializer {
 	user := UserResponseSerializer{
 		Username: m.Username,
 		Email:    m.Email,

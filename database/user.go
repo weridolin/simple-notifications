@@ -2,7 +2,6 @@ package database
 
 import (
 	"errors"
-	"fmt"
 
 	"github.com/gin-gonic/gin"
 	"github.com/weridolin/simple-vedio-notifications/tools"
@@ -24,7 +23,7 @@ type User struct {
 }
 
 func (u *User) Create() (*User, error) {
-	DB.Where("username = ? and email = ? ", u.Username, u.Email).First(&u)
+	DB.Where("username = ? or email = ? ", u.Username, u.Email).First(&u)
 	if u.ID != 0 {
 		return nil, errors.New("用户名或邮箱已存在")
 	} else {
@@ -47,11 +46,10 @@ func (u *User) Bind(c *gin.Context) error {
 	return nil
 }
 
-func QueryFirst(condition interface{}) (User, error) {
+func QueryUser(condition interface{}) (User, error) {
 	db := GetDB()
 	var user User
-	err := db.Where(condition).First(&user).Error
-	fmt.Println(user, ">>>", err)
+	err := db.Where(condition).Find(&user).Error
 	return user, err
 }
 

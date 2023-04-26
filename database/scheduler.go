@@ -5,48 +5,53 @@ import (
 )
 
 type Scheduler struct {
-	UserID uint
-	User   User `gorm:"foreignKey:UserID;OnDelete:CASCADE;AssociationForeignKey:ID"` // 外键约束
+	User User `gorm:"foreignKey:UserID;OnDelete:CASCADE;AssociationForeignKey:ID"` // 外键约束
 	gorm.Model
-	Period string `gorm:"comment:时间"`
-
-	Task    []Task
-	Deleted bool `gorm:"default:false"`
-	Active  bool `gorm:"default:true"`
+	Period  string  `gorm:"comment:时间"`
+	UserID  uint    `gorm:"comment:用户ID"`
+	Task    []*Task `gorm:"many2many:scheduler_task;"`  // scheduler和task是多对多的关系
+	Type    string  `gorm:"comment:类型;default:builtin"` // builtin:内置, custom:自定义
+	Deleted bool    `gorm:"default:false"`
+	Active  bool    `gorm:"default:true"`
 }
 
-type Ups map[string]interface{}
-
-type Task struct {
-	SchedulerID uint
-	Scheduler   Scheduler `gorm:"foreignKey:SchedulerID;OnDelete:CASCADE;AssociationForeignKey:ID"` // 外键约束
-	gorm.Model
-	PlatForm      string           `gorm:"comment:平台"`
-	Ups           Ups              `gorm:"comment:订阅的该平台的up主;type:json"` // 用json存储map
-	EmailNotifier []*EmailNotifier `gorm:"many2many:email_notifier_tasks;"`
+func (Scheduler) TableName() string {
+	return "scheduler"
 }
 
-func (t *Task) Create() error {
-	DB.Create(&t)
-	return nil
+func CreateScheduler(user User, period string) error {
+	scheduler := Scheduler{
+		UserID: user.ID,
+		Period: period,
+		Type:   "custom",
+	}
+	db := GetDB()
+	err := db.Create(&scheduler).Error
+	return err
 }
 
-func (t *Task) Delete() error {
-	DB.Delete(&t)
-	return nil
+func (s *Scheduler) Update(data interface{}) error {
+	db := GetDB()
+	err := db.Model(s).Updates(data).Error
+	return err
 }
 
-func (t *Task) Update() error {
-	DB.Model(&t).Updates(t)
-	return nil
+func (s *Scheduler) Delete() error {
+	db := GetDB()
+	err := db.Delete(s).Error
+	return err
 }
 
-// func (t *Task) Query() (*Task, error) {
-// 	var tasks []User
-// 	DB.Where(t).Find(&tasks)
-// 	if t.ID == 0 {
-// 		return nil, errors.New("任务不存在")
-// 	} else {
-// 		return t, nil
-// 	}
-// }
+func QueryScheduler(condition interface{}) (Scheduler, error) {
+	db := GetDB()
+	var scheduler Scheduler
+	err := db.Where(condition).First(&scheduler).Error
+	return scheduler, err
+}
+
+func QuerySchedulers(condition interface{}, page, size int) ([]Scheduler, error) {
+	db := GetDB()
+	var scheduler []Scheduler
+	err := db.Where(condition).Find(&scheduler).Error
+	return scheduler, err
+}

@@ -13,10 +13,18 @@ type EmailNotifier struct {
 	Content  string  `gorm:"comment:内容"`
 }
 
+func (EmailNotifier) TableName() string {
+	return "email_notifier"
+}
+
 type EmailNotifierTask struct {
 	gorm.Model
 	EmailNotifierID uint
 	EmailNotifier   EmailNotifier `gorm:"foreignKey:EmailNotifierID;OnDelete:CASCADE"`
 	TaskID          uint          `gorm:"comment:任务ID"`
 	Task            Task          `gorm:"foreignKey:TaskID;OnDelete:CASCADE"`
+}
+
+func (EmailNotifierTask) TableName() string {
+	return "email_notifier_tasks"
 }

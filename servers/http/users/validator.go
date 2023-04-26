@@ -25,12 +25,12 @@ func (u *LoginRequestValidator) CheckPWd() (*database.User, error) {
 	var user database.User
 	var err error
 	if tools.IsEmail(u.Count) {
-		user, err = database.QueryFirst(&database.User{Email: u.Count})
+		user, err = database.QueryUser(&database.User{Email: u.Count})
 		if err != nil {
 			return nil, errors.New("邮箱不存在")
 		}
 	} else {
-		user, err = database.QueryFirst(&database.User{Username: u.Count})
+		user, err = database.QueryUser(&database.User{Username: u.Count})
 		if err != nil {
 			return nil, errors.New("用户名不存在")
 		}

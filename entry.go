@@ -37,6 +37,7 @@ func Setup() {
 		&database.Task{},
 		&database.EmailNotifier{},
 		&database.EmailNotifierTask{},
+		&database.SchedulerTask{},
 	)
 }
 

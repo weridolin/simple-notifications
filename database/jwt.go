@@ -6,7 +6,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 )
 
-const JWT_KEY = "werido"
+const JWT_KEY = "123456"
 
 func GenToken(user User) string {
 	jwt_token := jwt.New(jwt.GetSigningMethod("HS256"))

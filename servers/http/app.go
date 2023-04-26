@@ -9,11 +9,19 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 	"github.com/weridolin/simple-vedio-notifications/servers/http/middlewares"
 	"github.com/weridolin/simple-vedio-notifications/servers/http/users"
+	"github.com/weridolin/simple-vedio-notifications/tools"
 )
 
+func AddCustomValidator() {
+	validate := validator.New()
+	validate.RegisterValidation("cronValidate", tools.CronValidator)
+}
+
 func Start() {
+	AddCustomValidator()
 	r := gin.Default()
 	v1 := r.Group("/api/v1")
 	v1.GET("/", func(c *gin.Context) {
