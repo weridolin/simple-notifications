@@ -5,6 +5,7 @@ import (
 	"sync"
 
 	config "github.com/weridolin/simple-vedio-notifications/configs"
+	"github.com/weridolin/simple-vedio-notifications/tools"
 )
 
 type SchedulerManager struct {
@@ -27,7 +28,7 @@ func (sm *SchedulerManager) AddScheduler(s *Scheduler) (*SchedulerManager, error
 	// scheduler缓存
 	_, ok := sm.Schedulers[s.DBIndex]
 	if ok {
-		return sm, SchedulerIsExistError
+		return sm, tools.SchedulerIsExistError
 	}
 	sm.Schedulers[s.DBIndex] = s
 	// 平台缓存
@@ -50,14 +51,14 @@ func (sm *SchedulerManager) RemoveScheduler(s *Scheduler) (*SchedulerManager, er
 	// scheduler缓存移除
 	_, ok := sm.Schedulers[s.DBIndex]
 	if !ok {
-		return sm, SchedulerIsExistError
+		return sm, tools.SchedulerIsExistError
 	} else {
 		delete(sm.Schedulers, s.DBIndex)
 	}
 	// 平台缓存移除
 	_, ok = sm.PlatFormSchedulerCache[s.PlatForm]
 	if !ok {
-		return sm, SchedulerIsExistError
+		return sm, tools.SchedulerIsExistError
 	} else {
 		for i, v := range sm.PlatFormSchedulerCache[s.PlatForm] {
 			if v == s.DBIndex {

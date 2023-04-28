@@ -1,18 +1,18 @@
 package database
 
 import (
+	"github.com/weridolin/simple-vedio-notifications/tools"
 	"gorm.io/gorm"
 )
 
 type Scheduler struct {
 	User User `gorm:"foreignKey:UserID;OnDelete:CASCADE;AssociationForeignKey:ID"` // 外键约束
 	gorm.Model
-	Period  string  `gorm:"comment:时间"`
-	UserID  uint    `gorm:"comment:用户ID"`
-	Task    []*Task `gorm:"many2many:scheduler_task;"`  // scheduler和task是多对多的关系
-	Type    string  `gorm:"comment:类型;default:builtin"` // builtin:内置, custom:自定义
-	Deleted bool    `gorm:"default:false"`
-	Active  bool    `gorm:"default:true"`
+	Period string  `gorm:"comment:时间"`
+	UserID uint    `gorm:"comment:用户ID"`
+	Task   []*Task `gorm:"many2many:scheduler_task;"`  // scheduler和task是多对多的关系
+	Type   string  `gorm:"comment:类型;default:builtin"` // builtin:内置, custom:自定义
+	Active bool    `gorm:"default:true"`
 }
 
 func (Scheduler) TableName() string {
@@ -25,9 +25,13 @@ func CreateScheduler(user User, period string) error {
 		Period: period,
 		Type:   "custom",
 	}
-	db := GetDB()
-	err := db.Create(&scheduler).Error
-	return err
+	_, e := QueryScheduler(scheduler)
+	if e != nil {
+		db := GetDB()
+		err := db.Create(&scheduler).Error
+		return err
+	}
+	return tools.SchedulerIsExistError
 }
 
 func (s *Scheduler) Update(data interface{}) error {

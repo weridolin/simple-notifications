@@ -1,10 +1,13 @@
 package tools
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/go-playground/validator/v10"
 )
+
+var SchedulerIsExistError = errors.New("scheduler is exist")
 
 type CommonError struct {
 	Errors map[string]interface{} `json:"errors"`
