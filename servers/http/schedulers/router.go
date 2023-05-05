@@ -16,6 +16,8 @@ func SchedulerRouteRegister(router *gin.RouterGroup) {
 	router.POST("", AddScheduler)
 	router.DELETE("/:id", DeleteScheduler)
 	router.PUT("/:id", UpdateScheduler)
+	router.POST("/bind", BindScheduler)
+
 }
 
 func TasksRouteRegister(router *gin.RouterGroup) {
@@ -32,13 +34,13 @@ func GetSchedulers(c *gin.Context) {
 		common.HttpResponse(c, http.StatusUnprocessableEntity, -1, "请求参数错误", tools.NewValidatorError(err))
 		return
 	}
-	schedulers, err := database.QuerySchedulers(map[string]interface{}{"user_id": user.(database.User).ID}, validator.Page, validator.Size)
+	schedulers, err := database.FullQuerySchedulers(&database.Scheduler{UserID: user.(database.User).ID}, validator.Page, validator.Size)
 	if err != nil {
 		common.HttpResponse(c, http.StatusBadGateway, -1, err.Error(), nil)
 		return
 	}
 	serializer := SchedulerSerializer{}
-	common.HttpResponse(c, http.StatusOK, 0, "获取成功", serializer.FromSchedulerModel(schedulers, user.(database.User)))
+	common.HttpResponse(c, http.StatusOK, 0, "获取成功", serializer.FromSchedulerModels(schedulers, user.(database.User)))
 	return
 
 }
@@ -110,6 +112,22 @@ func UpdateScheduler(c *gin.Context) {
 		return
 	}
 	common.HttpResponse(c, http.StatusOK, 0, "更新成功", nil)
+	return
+}
+
+func BindScheduler(c *gin.Context) {
+	// user, _ := c.Get("user")
+	validator := BindTasksToSchedulerValidator{}
+	if err := validator.Bind(c); err != nil {
+		common.HttpResponse(c, http.StatusUnprocessableEntity, -1, "请求参数错误", tools.NewValidatorError(err))
+		return
+	}
+	err := database.BindTask(validator.SchedulerID, validator.TaskID)
+	if err != nil {
+		common.HttpResponse(c, http.StatusInternalServerError, -1, err.Error(), nil)
+		return
+	}
+	common.HttpResponse(c, http.StatusOK, 0, "绑定成功", nil)
 	return
 }
 
@@ -186,19 +204,8 @@ func UpdateTask(c *gin.Context) {
 		common.HttpResponse(c, http.StatusBadRequest, -1, err.Error(), nil)
 		return
 	}
-	common.HttpResponse(c, http.StatusOK, 0, "更新成功", TaskSerializer{}.FromTaskModel(task, user.(database.User)))
+	common.HttpResponse(c, http.StatusOK, 0, "更新成功", TaskSerializer{}.FromTaskModel(&task, user.(database.User)))
 	return
-}
-
-func BindScheduler(c *gin.Context) {
-	// user, _ := c.Get("user")
-	// validator := BindTasksToSchedulerValidator{}
-	// if err := validator.Bind(c); err != nil {
-	// 	common.HttpResponse(c, http.StatusUnprocessableEntity, -1, "请求参数错误", tools.NewValidatorError(err))
-	// 	return
-	// }
-
-	// return
 }
 
 func GetTasks(c *gin.Context) {
@@ -208,7 +215,7 @@ func GetTasks(c *gin.Context) {
 		common.HttpResponse(c, http.StatusUnprocessableEntity, -1, "请求参数错误", tools.NewValidatorError(err))
 		return
 	}
-	tasks, err := database.SearchTasks(user.(database.User), validator.Name, validator.Page, validator.Size, validator.SchedulerID)
+	tasks, err := database.FullQueryTasks(&database.Task{UserID: user.(database.User).ID}, validator.Page, validator.Size)
 	if err != nil {
 		common.HttpResponse(c, http.StatusBadGateway, -1, err.Error(), nil)
 		return

@@ -10,7 +10,7 @@ type Scheduler struct {
 	gorm.Model
 	Period string  `gorm:"comment:时间"`
 	UserID uint    `gorm:"comment:用户ID"`
-	Task   []*Task `gorm:"many2many:scheduler_task;"`  // scheduler和task是多对多的关系
+	Tasks  []*Task `gorm:"many2many:scheduler_task"`   // scheduler和task是多对多的关系
 	Type   string  `gorm:"comment:类型;default:builtin"` // builtin:内置, custom:自定义
 	Active bool    `gorm:"default:true"`
 }
@@ -50,12 +50,26 @@ func QueryScheduler(condition interface{}) (Scheduler, error) {
 	db := GetDB()
 	var scheduler Scheduler
 	err := db.Where(condition).First(&scheduler).Error
+	// print()
 	return scheduler, err
 }
 
-func QuerySchedulers(condition interface{}, page, size int) ([]Scheduler, error) {
+func FullQuerySchedulers(condition interface{}, page, size int) ([]*Scheduler, error) {
 	db := GetDB()
-	var scheduler []Scheduler
-	err := db.Where(condition).Find(&scheduler).Error
-	return scheduler, err
+	var schedulers []*Scheduler
+	err := db.Model(&Scheduler{}).Preload("Tasks").Where(condition).Offset((page - 1) * size).Limit(size).Find(&schedulers).Error
+	return schedulers, err
+}
+
+func BindTask(schedulerId uint, taskIds []uint) error {
+	db := GetDB()
+	var st []SchedulerTask
+	for _, taskId := range taskIds {
+		st = append(st, SchedulerTask{
+			SchedulerID: schedulerId,
+			TaskID:      taskId,
+		})
+	}
+	err := db.Create(&st).Error
+	return err
 }

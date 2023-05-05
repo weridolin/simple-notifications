@@ -3,7 +3,7 @@ package database
 import "gorm.io/gorm"
 
 type Task struct {
-	Scheduler []*Scheduler `gorm:"many2many:scheduler_task;"` // scheduler和task是多对多的关系
+	Schedulers []*Scheduler `gorm:"many2many:scheduler_task"` // scheduler和task是多对多的关系
 	gorm.Model
 	PlatForm      string           `gorm:"comment:平台"`
 	Ups           Ups              `gorm:"comment:订阅的该平台的up主;type:json"` // 用json存储map
@@ -61,18 +61,9 @@ func GetTaskById(id int) (Task, error) {
 	return task, err
 }
 
-func SearchTasks(user User, name string, page, size int, schedulerIds int) ([]Task, error) {
+func FullQueryTasks(condition interface{}, page, size int) ([]*Task, error) {
 	db := GetDB()
-	condition := map[string]interface{}{
-		"user_id": user.ID, "active": true,
-	}
-	var task []Task
-	if name != "" {
-		condition["name"] = name
-	}
-	if schedulerIds != -1 {
-		db.Model(&user).Where(condition).Association("Scheduler").Find(&task)
-	}
-	err := db.Where(condition).Find(&task).Error
-	return task, err
+	var tasks []*Task
+	err := db.Model(&Task{}).Preload("Schedulers").Where(condition).Offset((page - 1) * size).Limit(size).Find(&tasks).Error
+	return tasks, err
 }

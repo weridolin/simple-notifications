@@ -55,9 +55,7 @@ func (u *TaskValidator) Bind(c *gin.Context) error {
 
 type QueryTaskValidator struct {
 	common.PaginationValidator
-	SchedulerID int    `json:"scheduler_id" form:"scheduler_id" query:"scheduler_id" default:"-1"`
-	UserID      int    `json:"user_id" form:"user_id" query:"user_id" default:"-1"`
-	Name        string `json:"name" form:"name" query:"name" default:""`
+	UserID int `json:"user_id" form:"user_id" query:"user_id" default:"-1"`
 }
 
 func (u *QueryTaskValidator) Bind(c *gin.Context) error {
@@ -69,8 +67,8 @@ func (u *QueryTaskValidator) Bind(c *gin.Context) error {
 }
 
 type BindTasksToSchedulerValidator struct {
-	SchedulerID []int `json:"scheduler_id" form:"scheduler_id" query:"scheduler_id" binding:"required"`
-	TaskID      []int `json:"task_id" form:"task_id" query:"task_id" binding:"required"`
+	SchedulerID uint   `json:"scheduler_id" form:"scheduler_id" query:"scheduler_id" binding:"required"`
+	TaskID      []uint `json:"task_id" form:"task_id" query:"task_id" binding:"required"`
 }
 
 func (u *BindTasksToSchedulerValidator) Bind(c *gin.Context) error {
