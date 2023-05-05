@@ -136,6 +136,10 @@ func (t *BiliBiliTask) GetUpInfo() {
 	fmt.Println("GetUpInfo")
 }
 
+func (t *BiliBiliTask) Stop() {
+	fmt.Println("stop bilibili task")
+}
+
 func GetRandomUserAgent() string {
 	//随机获取一个列表里面的元素
 	return BrowserUserAgentPool[rand.Intn(len(BrowserUserAgentPool))]
