@@ -57,8 +57,13 @@ func (s *Scheduler) Stop() {
 }
 
 func (s *Scheduler) AddTask(t interface{}) {
+	for _, task := range s.Tasks {
+		if task.(Task).DBIndex == t.(Task).DBIndex {
+			return
+		}
+	}
 	s.Tasks = append(s.Tasks, t)
-	fmt.Println("add up...", s)
+	fmt.Println("add task...", s)
 }
 
 func (s *Scheduler) RemoveTask(t Task) {

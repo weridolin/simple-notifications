@@ -53,12 +53,13 @@ func main() {
 	manager := schedulers.NewSchedulerManager(ctx, uuid)
 	task := bilibili.NewBiliBiliTask(
 		tools.Period{Cron: tools.Minutely},
-		map[string]interface{}{"敬汉卿": 9824766, "盗月社食遇记": 99157282},
+		map[string]interface{}{"盗月社食遇记": 99157282},
 		0,
 	)
 	scheduler := schedulers.NewScheduler(tools.Period{Cron: tools.Minutely}, "bilibili", 0, 1)
 	scheduler.AddTask(task)
 	manager.AddScheduler(scheduler)
+	fmt.Println(manager.Schedulers, manager.PlatFormSchedulerCache)
 	manager.StartAll()
 	time.Sleep(time.Minute * 2)
 }

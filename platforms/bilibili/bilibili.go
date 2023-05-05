@@ -114,9 +114,13 @@ func (t *BiliBiliTask) Run() {
 		}
 		defer resp.Body.Close()
 		body, _ := ioutil.ReadAll(resp.Body)
+		// fmt.Println("get result", string(body))
+		// if resp.StatusCode != 200 {
 		err := json.Unmarshal([]byte(body), &data)
 		if err != nil {
 			fmt.Printf("unmarshal err = %v\n", err)
+			fmt.Println(resp.StatusCode, string(body))
+			break
 		}
 
 		// 将返回的结果转换为结构体

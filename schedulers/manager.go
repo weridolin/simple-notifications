@@ -84,10 +84,8 @@ func (sm *SchedulerManager) StartAll() (*SchedulerManager, error) {
 	tp := sm.Ctx.Value("tp").(*TickerPool)
 	sm.lock.RLock()
 	defer sm.lock.RUnlock()
-	// s, ok := sm.Schedulers[s.DBIndex]
 	for _, s := range sm.Schedulers {
 		tp.SubmitScheduler(s)
-		// s.Start()
 	}
 	return sm, nil
 }
