@@ -79,8 +79,17 @@ type VideoInfo struct {
 }
 
 type BiliBiliTask struct {
-	Ups    map[string]interface{}
-	Period tools.Period
+	DBIndex uint
+	Ups     map[string]interface{}
+	Period  tools.Period
+}
+
+func NewBiliBiliTask(period tools.Period, ups map[string]interface{}, dbindex uint) *BiliBiliTask {
+	return &BiliBiliTask{
+		DBIndex: dbindex,
+		Period:  period,
+		Ups:     ups,
+	}
 }
 
 func (t *BiliBiliTask) Run() {

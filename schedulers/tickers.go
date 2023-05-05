@@ -1,6 +1,6 @@
 /*
 	ticker是scheduler的执行者.每个ticker对应一个cron,可以同时运行多个scheduler.
-	tickerPool是对所有ticker的管理，采用的类似线程池的实现方式是策略
+	tickerPool是对所有ticker的管理，采用的类似线程池的实现方式和策略
 */
 package schedulers
 
@@ -23,6 +23,16 @@ func NewTicker(platform string, maxSchedulerCount int, schedulers []*Scheduler) 
 }
 
 func (t *Ticker) Start() {
+	for _, s := range t.ScheduLerCache {
+		fmt.Println("add and start scheduler...", s)
+		t.Executor.AddFunc(s.Period.Cron, func() {
+			fmt.Println("start run scheduler... platform", s.PlatForm, "period", s.Period.Cron, "status")
+			s.Start()
+			fmt.Println("run scheduler end...")
+		})
+		s.ticker = t
+		s.Status = 1
+	}
 	fmt.Println("start ticker...")
 	t.Executor.Start()
 }
@@ -30,13 +40,19 @@ func (t *Ticker) Start() {
 func (t *Ticker) AddScheduler(s *Scheduler) {
 	fmt.Println("add and start scheduler...", s)
 	t.Executor.AddFunc(s.Period.Cron, func() {
-		fmt.Println("start run scheduler... platform", s.PlatForm, "ups", s.Ups, "period", s.Period.Cron, "status")
+		fmt.Println("start run scheduler... platform", s.PlatForm, "period", s.Period.Cron, "status")
 		s.Start()
 		fmt.Println("run scheduler end...")
 	})
+	s.ticker = t
+	s.Status = 1
 }
 
 func (t *Ticker) Stop() {
+	for _, s := range t.ScheduLerCache {
+		s.Status = 0
+		s.ticker = nil
+	}
 	t.Executor.Stop()
 }
 
