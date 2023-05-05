@@ -1,3 +1,7 @@
+/*
+	ticker是scheduler的执行者.每个ticker对应一个cron,可以同时运行多个scheduler.
+	tickerPool是对所有ticker的管理，采用的类似线程池的实现方式是策略
+*/
 package schedulers
 
 import (

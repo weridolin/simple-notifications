@@ -1,3 +1,9 @@
+/*
+	manager.go: 统一管理所有scheduler,对scheduler的操作都必须经过manager
+	每个manager会对应一个tickerPool,用于管理所有的ticker
+
+
+*/
 package schedulers
 
 import (
@@ -11,11 +17,11 @@ import (
 type SchedulerManager struct {
 	Schedulers             map[int]*Scheduler // key为数据库ID
 	PlatFormSchedulerCache map[string][]int   // 平台名称: scheduler id列表（数据库索引）
-	Config                 *config.Config
+	Config                 *config.Config     // 配置信息
 	lock                   sync.RWMutex
-	start                  bool
-	Ctx                    context.Context
-	Key                    string
+	start                  bool            // 是否启动
+	Ctx                    context.Context //上下文
+	Key                    string          //唯一标识
 }
 
 func NewSchedulerManager(ctx context.Context, key string) *SchedulerManager {

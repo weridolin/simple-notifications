@@ -1,3 +1,6 @@
+/*
+	每个scheduler表示一个定时任务,可以包括多个task
+*/
 package schedulers
 
 import (
@@ -8,11 +11,11 @@ import (
 )
 
 type Scheduler struct {
-	Period   tools.Period
-	PlatForm string
-	Ups      map[string]interface{}
-	Status   int8 // 0 停止 1 启动  2 暂停
-	DBIndex  int  //唯一索引
+	Period   tools.Period           //定时周期
+	PlatForm string                 //	scheduler对应的平台名称
+	Ups      map[string]interface{} // scheduler对应的up主列表， //TODO 这里应该可以去掉？
+	Status   int8                   // 0 停止 1 启动  2 暂停
+	DBIndex  int                    //唯一索引
 }
 
 func NewScheduler(period tools.Period, platform string, ups map[string]interface{}, status int8, dbindex int) *Scheduler {
