@@ -8,11 +8,24 @@ import (
 	"time"
 
 	"github.com/robfig/cron/v3"
+	"github.com/weridolin/simple-vedio-notifications/configs"
 	"github.com/weridolin/simple-vedio-notifications/database"
 	"github.com/weridolin/simple-vedio-notifications/platforms/bilibili"
 	"github.com/weridolin/simple-vedio-notifications/schedulers"
 	"github.com/weridolin/simple-vedio-notifications/tools"
 )
+
+// type Context struct {
+// 	tp     *schedulers.TickerPool
+// 	config *configs.Config
+// }
+
+// func NewContext(tp *schedulers.TickerPool, config *configs.Config) *Context {
+// 	return &Context{
+// 		tp:     tp,
+// 		config: config,
+// 	}
+// }
 
 func TestCron() {
 	c := cron.New()
@@ -47,8 +60,9 @@ func Setup() {
 func main() {
 	// Setup()
 	// http.Start()
-	// TestCron()
-	ctx := context.WithValue(context.Background(), "tp", schedulers.NewTickerPool(1))
+	config := configs.GetAppConfig()
+	ctx := context.WithValue(context.Background(), "tp", schedulers.NewTickerPool(config.DefaultMaxTickerCount))
+
 	uuid := tools.GetUUID()
 	manager := schedulers.NewSchedulerManager(ctx, uuid)
 	task := bilibili.NewBiliBiliTask(

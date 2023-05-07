@@ -1,5 +1,7 @@
 /*
-	每个scheduler表示一个定时任务,可以包括多个task
+	每个scheduler表示一个定时任务,可以包括多个task.
+	scheduler 不支持用户自定义，只提供内置的scheduler
+
 */
 package schedulers
 

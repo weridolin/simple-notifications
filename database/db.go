@@ -3,6 +3,7 @@ package database
 import (
 	"fmt"
 
+	"github.com/weridolin/simple-vedio-notifications/configs"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -16,7 +17,8 @@ var DB *gorm.DB //指针
 //root:werido@8.131.78.84:3306/sitebackend?charset=utf8mb4
 
 func init() {
-	dsn := "root:werido@tcp(8.131.78.84:3306)/simple_notification?charset=utf8mb4&parseTime=true"
+	dsn := configs.GetAppConfig().DBUri
+	fmt.Println("dsn: ", dsn)
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		fmt.Println("db connect err: (Init) ", err)

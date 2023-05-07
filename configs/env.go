@@ -1,4 +1,4 @@
-package common
+package configs
 
 //todo
 import (
@@ -15,5 +15,5 @@ func init() {
 	} else {
 		fmt.Println("loading env from .env success")
 	}
-
+	// fmt.Println()
 }

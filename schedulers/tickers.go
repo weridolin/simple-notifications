@@ -16,6 +16,7 @@ import (
 	"fmt"
 
 	"github.com/robfig/cron/v3"
+	"github.com/weridolin/simple-vedio-notifications/configs"
 )
 
 type Ticker struct {
@@ -77,7 +78,7 @@ func (t *Ticker) Stop() {
 }
 
 type TickerPool struct {
-	MaxTickerCount   int
+	MaxTickerCount   int //这里是指每个platform对应的最大ticker数量
 	SchedulerCache   map[int]*Scheduler
 	TickerCache      map[string][]*Ticker
 	RunningTicker    []*Ticker
@@ -146,14 +147,14 @@ func (tp *TickerPool) SubmitScheduler(s *Scheduler) {
 
 	if _, ok := tp.TickerCache[s.PlatForm]; !ok {
 		fmt.Println("create a new ticker to pool...")
-		t := &Ticker{s.PlatForm, 2, []*Scheduler{s}, cron.New(), tp}
+		t := &Ticker{s.PlatForm, configs.GetAppConfig().DefaultTickerMaxSchedulerCount, []*Scheduler{s}, cron.New(), tp}
 		tp.AddTicker(t)
 		tp.RunningScheduler = append(tp.RunningScheduler, s)
 
 	} else {
 		// 每个platform暂时最多对应两个ticker,每个ticker最多对应2个scheduler
 		// 其他策略 //TODO
-		if len(tp.TickerCache[s.PlatForm]) > 2 {
+		if len(tp.TickerCache[s.PlatForm]) > tp.MaxTickerCount {
 			fmt.Println("add scheduler to waiting scheduler...")
 			tp.WaitingScheduler = append(tp.WaitingScheduler, s)
 		} else {
