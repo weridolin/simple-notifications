@@ -1,4 +1,4 @@
-package configs
+package config
 
 import (
 	"log"
@@ -7,8 +7,9 @@ import (
 
 var logger *log.Logger = nil
 
-func init() {
+func GetLogger() *log.Logger {
 	if logger == nil {
 		logger = log.New(os.Stdout, "<simple-notification> ", log.Lshortfile|log.Ldate|log.Lmicroseconds)
 	}
+	return logger
 }

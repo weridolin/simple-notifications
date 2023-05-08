@@ -6,8 +6,6 @@
 package schedulers
 
 import (
-	"fmt"
-
 	tools "github.com/weridolin/simple-vedio-notifications/tools"
 )
 
@@ -38,7 +36,6 @@ func (s *Scheduler) Start() {
 		i = t.(ITask)
 		i.Run()
 	}
-	// var t Task
 	// switch s.PlatForm {
 	// case "bilibili":
 	// 	t = &bilibili.BiliBiliTask{Period: s.Period, Ups: s.Ups}
@@ -55,29 +52,32 @@ func (s *Scheduler) Stop() {
 		i = t.(ITask)
 		i.Stop()
 	}
-	fmt.Println("stop scheduler...", s)
+	logger.Println("stop scheduler finish", "DBIndex -> ", s.DBIndex)
 }
 
 func (s *Scheduler) AddTask(t interface{}) {
 	for _, task := range s.Tasks {
 		if task.(Task).DBIndex == t.(Task).DBIndex {
+			logger.Println("task already exist in scheduler,period -> ", s.Period.Cron, " platform -> ",
+				s.PlatForm, " taskID -> ", t.(Task).DBIndex, "ScheduleID", s.DBIndex)
 			return
 		}
 	}
 	s.Tasks = append(s.Tasks, t)
-	fmt.Println("add task...", s)
 }
 
 func (s *Scheduler) RemoveTask(t Task) {
-	fmt.Println("remove up...", s)
+	logger.Println("remove task ID -> ", t.DBIndex, " from scheduler ID -> ", s.DBIndex)
 	for i, task := range s.Tasks {
 		if task.(Task).DBIndex == t.DBIndex {
 			s.Tasks = append(s.Tasks[:i], s.Tasks[i+1:]...)
+			// task.(Task).Stop() #TODO
 		}
 	}
 }
 
 func (s *Scheduler) Delete() {
 	s.Status = 0
-	fmt.Println("delete scheduler...", s)
+	s.ticker.Stop()
+	logger.Println("delete scheduler...", s)
 }

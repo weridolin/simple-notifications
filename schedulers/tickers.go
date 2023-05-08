@@ -13,22 +13,22 @@
 package schedulers
 
 import (
-	"fmt"
-
 	"github.com/robfig/cron/v3"
-	"github.com/weridolin/simple-vedio-notifications/configs"
+	config "github.com/weridolin/simple-vedio-notifications/configs"
+	"github.com/weridolin/simple-vedio-notifications/tools"
 )
 
 type Ticker struct {
-	PlatForm          string
-	MaxSchedulerCount int
-	ScheduLerCache    []*Scheduler
-	Executor          *cron.Cron
-	tp                *TickerPool
+	PlatForm          string       // ticker所属平台，每个ticker只能对应一个平台
+	MaxSchedulerCount int          // ticker 对应的scheduler最大监听数量
+	ScheduLerCache    []*Scheduler // ticker里面监听的scheduler
+	Executor          *cron.Cron   // ticker 对应的执行器
+	tp                *TickerPool  // ticker绑定的ticker pool
+	id                string       // ticker的唯一标识
 }
 
 func NewTicker(platform string, maxSchedulerCount int, schedulers []*Scheduler) *Ticker {
-	t := &Ticker{platform, maxSchedulerCount, schedulers, cron.New(), nil}
+	t := &Ticker{platform, maxSchedulerCount, schedulers, cron.New(), nil, tools.GetUUID()}
 	return t
 }
 
@@ -36,22 +36,20 @@ func (t *Ticker) Start() {
 	// ch := make(chan bool)
 	// var wg sync.WaitGroup
 	for _, s := range t.ScheduLerCache {
-		// wg.Add(1)
-		fmt.Println("add and start scheduler...", s)
 		t.Executor.AddFunc(s.Period.Cron, func() {
-			fmt.Println("start run scheduler... platform", s.PlatForm, "period", s.Period.Cron, "status")
+			logger.Println("start run scheduler... platform", s.PlatForm, "period", s.Period.Cron, "ticker id", t.id)
 			s.Start()
-			fmt.Println("run scheduler end...")
+			logger.Println("run scheduler end...", s.PlatForm, "period", s.Period.Cron)
 			// wg.Done()
 		})
 		s.ticker = t
 		s.Status = 1
 	}
-	fmt.Println("start ticker...")
+	logger.Println("start ticker,ticker scheduler -> ", t.ScheduLerCache)
 	t.Executor.Start()
 	// wg.Wait()
-	fmt.Println("ticker run finish...begin to adjust pool ")
-	t.tp.AdjustPoolSize(t)
+	// logger.Println("ticker run finish...begin to adjust pool ")
+	// t.tp.AdjustPoolSize(t)
 	// finish := <-ch
 	// if finish {
 	// 	fmt.Println("ticker run finish...")
@@ -59,11 +57,11 @@ func (t *Ticker) Start() {
 }
 
 func (t *Ticker) AddScheduler(s *Scheduler) {
-	fmt.Println("add and start scheduler...", s)
+	logger.Println("add a scheduler to ticker and start")
 	t.Executor.AddFunc(s.Period.Cron, func() {
-		fmt.Println("start run scheduler... platform", s.PlatForm, "period", s.Period.Cron, "status")
+		logger.Println("start run scheduler... platform", s.PlatForm, "period", s.Period.Cron, "ticker id", t.id)
 		s.Start()
-		fmt.Println("run scheduler end...")
+		logger.Println("run scheduler end...", s.PlatForm, "period", s.Period.Cron)
 	})
 	s.ticker = t
 	s.Status = 1
@@ -85,6 +83,7 @@ type TickerPool struct {
 	WaitingTicker    []*Ticker
 	RunningScheduler []*Scheduler
 	WaitingScheduler []*Scheduler
+	ID               string
 }
 
 func NewTickerPool(maxTickerCount int) *TickerPool {
@@ -96,11 +95,12 @@ func NewTickerPool(maxTickerCount int) *TickerPool {
 		make([]*Ticker, 0),
 		make([]*Scheduler, 0),
 		make([]*Scheduler, 0),
+		tools.GetUUID(),
 	}
 }
 
 func (tp *TickerPool) AddTicker(ticker *Ticker) {
-	fmt.Println("add ticker...")
+	logger.Println("add ticker to pool ... pool id -> ", tp.ID, "ticker id -> ", ticker.id)
 	if len(tp.RunningTicker) >= tp.MaxTickerCount {
 		tp.WaitingTicker = append(tp.WaitingTicker, ticker)
 	} else {
@@ -136,49 +136,53 @@ func (tp *TickerPool) RemoveTicker(ticker *Ticker) {
 			return
 		}
 	}
-	fmt.Println("remove ticker...")
+	logger.Println("remove ticker id", ticker.id, "from pool id", tp.ID)
 }
 
 func (tp *TickerPool) SubmitScheduler(s *Scheduler) {
 	if _, ok := tp.SchedulerCache[s.DBIndex]; !ok {
-		fmt.Println("add scheduler to cache...")
+		logger.Println("add scheduler to cache...")
 		tp.SchedulerCache[s.DBIndex] = s
 	}
 
 	if _, ok := tp.TickerCache[s.PlatForm]; !ok {
-		fmt.Println("create a new ticker to pool...")
-		t := &Ticker{s.PlatForm, configs.GetAppConfig().DefaultTickerMaxSchedulerCount, []*Scheduler{s}, cron.New(), tp}
-		tp.AddTicker(t)
-		tp.RunningScheduler = append(tp.RunningScheduler, s)
+		if len(tp.TickerCache) < tp.MaxTickerCount {
+			logger.Println("create a new ticker to pool...")
+			t := &Ticker{s.PlatForm, config.GetAppConfig().DefaultTickerMaxSchedulerCount, []*Scheduler{s}, cron.New(), tp, tools.GetUUID()}
+			tp.AddTicker(t)
+			tp.RunningScheduler = append(tp.RunningScheduler, s)
+		} else {
+			tp.WaitingScheduler = append(tp.WaitingScheduler, s)
+		}
 
 	} else {
-		// 每个platform暂时最多对应两个ticker,每个ticker最多对应2个scheduler
-		// 其他策略 //TODO
+		// 先判断tickerPool中的ticker是否已经满了，是的话scheduler添加到等待队列
 		if len(tp.TickerCache[s.PlatForm]) > tp.MaxTickerCount {
-			fmt.Println("add scheduler to waiting scheduler...")
+			logger.Println("ticker count is full , add scheduler to waiting scheduler...")
 			tp.WaitingScheduler = append(tp.WaitingScheduler, s)
 		} else {
+			// 在判断对应的平台的所有的ticker中，是否有ticker的scheduler数量未达到最大值，是的话添加到该ticker中执行，都没有的话添加到等待队列
 			for _, t := range tp.TickerCache[s.PlatForm] {
-				// 每个ticker最多对应2个scheduler，判断scheduler是否已经满了
 				if len(t.ScheduLerCache) < t.MaxSchedulerCount {
 					t.AddScheduler(s)
 					tp.RunningScheduler = append(tp.RunningScheduler, s)
 					return
 				}
 			}
-			fmt.Println("ticker running queue is full...  add scheduler to waiting scheduler...")
+			logger.Println("ticker running queue is full...  add scheduler to waiting scheduler...")
 			tp.WaitingScheduler = append(tp.WaitingScheduler, s)
 		}
 	}
 }
 
 func (tp *TickerPool) AdjustPoolSize(ticker *Ticker) {
-	fmt.Println("adjust pool size...")
+	logger.Println("adjust pool size...")
 	// 先从waitingScheduler中取出等待执行的scheduler放入该ticker执行
 	for i, s := range tp.WaitingScheduler {
 		if s.PlatForm == ticker.PlatForm {
 			ticker.AddScheduler(s)
 			tp.WaitingScheduler = append(tp.WaitingScheduler[:i], tp.WaitingScheduler[i+1:]...)
+			return
 		}
 	}
 	// 没有对应platform的task 删除该ticker

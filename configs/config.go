@@ -1,8 +1,7 @@
-package configs
+package config
 
 import (
 	"os"
-	"time"
 )
 
 var ConfigInstance *Config
@@ -16,7 +15,6 @@ type Config struct {
 }
 
 func GetAppConfig() *Config {
-	time.Sleep(time.Second * 5)
 	if ConfigInstance == nil {
 		ConfigInstance = &Config{
 			PlatFormWhiteList:              make([]string, 0),

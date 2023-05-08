@@ -19,13 +19,13 @@ type SchedulerManager struct {
 	PlatFormSchedulerCache map[string][]int   // 平台名称: scheduler id列表（数据库索引）
 	Config                 *config.Config     // 配置信息
 	lock                   sync.RWMutex
-	start                  bool            // 是否启动
+	StartAfterAdd          bool            // 是否默认添加后启动
 	Ctx                    context.Context //上下文
 	Key                    string          //唯一标识
 }
 
 func NewSchedulerManager(ctx context.Context, key string) *SchedulerManager {
-	return &SchedulerManager{Ctx: ctx, Schedulers: make(map[int]*Scheduler), Key: key, PlatFormSchedulerCache: make(map[string][]int)}
+	return &SchedulerManager{Ctx: ctx, Schedulers: make(map[int]*Scheduler), Key: key, PlatFormSchedulerCache: make(map[string][]int), StartAfterAdd: false}
 }
 
 func (sm *SchedulerManager) AddScheduler(s *Scheduler) (*SchedulerManager, error) {
@@ -45,7 +45,7 @@ func (sm *SchedulerManager) AddScheduler(s *Scheduler) (*SchedulerManager, error
 		sm.PlatFormSchedulerCache[s.PlatForm] = append(sm.PlatFormSchedulerCache[s.PlatForm], s.DBIndex)
 	}
 
-	if sm.start {
+	if sm.StartAfterAdd {
 		s.Start()
 	}
 	return sm, nil
@@ -93,7 +93,6 @@ func (sm *SchedulerManager) StartAll() (*SchedulerManager, error) {
 func (sm *SchedulerManager) StopAll() (*SchedulerManager, error) {
 	sm.lock.RLock()
 	defer sm.lock.RUnlock()
-	// s, ok := sm.Schedulers[s.DBIndex]
 	for _, s := range sm.Schedulers {
 		s.Stop()
 	}

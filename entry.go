@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/robfig/cron/v3"
-	"github.com/weridolin/simple-vedio-notifications/configs"
+	config "github.com/weridolin/simple-vedio-notifications/configs"
 	"github.com/weridolin/simple-vedio-notifications/database"
 	"github.com/weridolin/simple-vedio-notifications/platforms/bilibili"
 	"github.com/weridolin/simple-vedio-notifications/schedulers"
@@ -60,7 +60,7 @@ func Setup() {
 func main() {
 	// Setup()
 	// http.Start()
-	config := configs.GetAppConfig()
+	config := config.GetAppConfig()
 	ctx := context.WithValue(context.Background(), "tp", schedulers.NewTickerPool(config.DefaultMaxTickerCount))
 
 	uuid := tools.GetUUID()
@@ -73,7 +73,6 @@ func main() {
 	scheduler := schedulers.NewScheduler(tools.Period{Cron: tools.Minutely}, "bilibili", 0, 1)
 	scheduler.AddTask(task)
 	manager.AddScheduler(scheduler)
-	fmt.Println(manager.Schedulers, manager.PlatFormSchedulerCache)
 	manager.StartAll()
 	time.Sleep(time.Minute * 2)
 }
