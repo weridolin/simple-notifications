@@ -9,8 +9,12 @@ import (
 	"time"
 
 	"github.com/mitchellh/mapstructure"
+	config "github.com/weridolin/simple-vedio-notifications/configs"
+	"github.com/weridolin/simple-vedio-notifications/schedulers"
 	tools "github.com/weridolin/simple-vedio-notifications/tools"
 )
+
+var logger = config.GetLogger()
 
 const (
 	domain          = "live.bilibili.com"
@@ -79,17 +83,32 @@ type VideoInfo struct {
 }
 
 type BiliBiliTask struct {
-	DBIndex uint
-	Ups     map[string]interface{}
-	Period  tools.Period
+	schedulers.Meta
+	Ups    map[string]interface{}
+	Period tools.Period
+	Error  error
+	Result interface{}
 }
 
 func NewBiliBiliTask(period tools.Period, ups map[string]interface{}, dbindex uint) *BiliBiliTask {
-	return &BiliBiliTask{
-		DBIndex: dbindex,
-		Period:  period,
-		Ups:     ups,
+	t := &BiliBiliTask{
+		Meta: schedulers.Meta{
+			DBIndex:   dbindex,
+			CallBacks: make([]func(), 0),
+		},
+		Period: period,
+		Ups:    ups,
 	}
+	t.CallBacks = append(t.CallBacks, t.UpdateResult)
+	return t
+}
+
+func (t *BiliBiliTask) UpdateResult() {
+	if t.Error != nil {
+		logger.Println(t.DBIndex, " run error -> ", t.Error)
+
+	}
+	logger.Println(t.DBIndex, " update result")
 }
 
 func (t *BiliBiliTask) Run() {
@@ -98,10 +117,10 @@ func (t *BiliBiliTask) Run() {
 		Timeout: 10 * time.Second,
 	}
 	for up_name, up_id := range t.Ups {
-		fmt.Println("up_name = ", up_name, "up_id = ", up_id)
+		logger.Println("get up public records", "up_name = ", up_name, "up_id = ", up_id)
 		var data map[string]interface{}
 		url := fmt.Sprintf(GetVideoInfoUrl, up_id)
-		fmt.Println("url = ", url)
+		logger.Println("url = ", url)
 		req, _ := http.NewRequest("GET", url, nil)
 		req.Header.Add("Host", Host)
 		req.Header.Add("Origin", Origin)
@@ -109,17 +128,18 @@ func (t *BiliBiliTask) Run() {
 		req.Header.Add("User-Agent", GetRandomUserAgent())
 		resp, http_err := client.Do(req)
 		if http_err != nil {
-			fmt.Printf("http get err = %v\n", http_err)
-			panic(http_err)
+			logger.Panicln("http get err = ", http_err)
+			// panic(http_err)
 		}
 		defer resp.Body.Close()
 		body, _ := ioutil.ReadAll(resp.Body)
-		// fmt.Println("get result", string(body))
+		logger.Println("get result", string(body), "status code", resp.StatusCode)
 		// if resp.StatusCode != 200 {
 		err := json.Unmarshal([]byte(body), &data)
 		if err != nil {
-			fmt.Printf("unmarshal err = %v\n", err)
-			fmt.Println(resp.StatusCode, string(body))
+			logger.Println("unmarshal err = ", err)
+			// fmt.Println(resp.StatusCode, string(body))
+			t.Error = err
 			break
 		}
 
@@ -127,11 +147,16 @@ func (t *BiliBiliTask) Run() {
 		VideoListResponse := data["data"].(map[string]interface{})["list"].(map[string]interface{})["vlist"].([]interface{})
 		var videoInfoList []VideoInfo
 		if err := mapstructure.Decode(VideoListResponse, &videoInfoList); err != nil {
-			panic(err)
+			t.Error = err
+			logger.Println("mapstructure decode err = ", err)
 		}
-		fmt.Println("获取 up ->", up_name, "作品信息", videoInfoList)
+		logger.Println("获取 up ->", up_name, "作品信息", videoInfoList)
 	}
 
+	// 执行callback
+	for _, callback := range t.CallBacks {
+		callback()
+	}
 	// return videoInfoList
 }
 
@@ -147,4 +172,9 @@ func (t *BiliBiliTask) Stop() {
 func GetRandomUserAgent() string {
 	//随机获取一个列表里面的元素
 	return BrowserUserAgentPool[rand.Intn(len(BrowserUserAgentPool))]
+}
+
+func UpdateResultToRedis() {
+	//更新结果到redis
+	logger.Println("UpdateResultToRedis")
 }

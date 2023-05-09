@@ -2,15 +2,16 @@ package schedulers
 
 import "errors"
 
-type Task struct {
-	DBIndex int
+type Meta struct {
+	DBIndex   uint
+	CallBacks []func() //每次运行回调函数列表
 }
 
-func (t *Task) Run() error {
+func (t *Meta) Run() error {
 	return errors.New("not implement")
 }
 
-func (t *Task) Stop() error {
+func (t *Meta) Stop() error {
 	return errors.New("not implement")
 }
 

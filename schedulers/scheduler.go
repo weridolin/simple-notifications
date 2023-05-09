@@ -57,19 +57,19 @@ func (s *Scheduler) Stop() {
 
 func (s *Scheduler) AddTask(t interface{}) {
 	for _, task := range s.Tasks {
-		if task.(Task).DBIndex == t.(Task).DBIndex {
+		if task.(Meta).DBIndex == t.(Meta).DBIndex {
 			logger.Println("task already exist in scheduler,period -> ", s.Period.Cron, " platform -> ",
-				s.PlatForm, " taskID -> ", t.(Task).DBIndex, "ScheduleID", s.DBIndex)
+				s.PlatForm, " taskID -> ", t.(Meta).DBIndex, "ScheduleID", s.DBIndex)
 			return
 		}
 	}
 	s.Tasks = append(s.Tasks, t)
 }
 
-func (s *Scheduler) RemoveTask(t Task) {
+func (s *Scheduler) RemoveTask(t Meta) {
 	logger.Println("remove task ID -> ", t.DBIndex, " from scheduler ID -> ", s.DBIndex)
 	for i, task := range s.Tasks {
-		if task.(Task).DBIndex == t.DBIndex {
+		if task.(Meta).DBIndex == t.DBIndex {
 			s.Tasks = append(s.Tasks[:i], s.Tasks[i+1:]...)
 			// task.(Task).Stop() #TODO
 		}
