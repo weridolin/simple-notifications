@@ -1,18 +1,14 @@
 package main
 
 import (
-	"context"
 	"fmt"
 
 	// schedulers "github.com/weridolin/simple-vedio-notifications/schedulers"
 	"time"
 
 	"github.com/robfig/cron/v3"
-	config "github.com/weridolin/simple-vedio-notifications/configs"
 	"github.com/weridolin/simple-vedio-notifications/database"
-	"github.com/weridolin/simple-vedio-notifications/platforms/bilibili"
-	"github.com/weridolin/simple-vedio-notifications/schedulers"
-	"github.com/weridolin/simple-vedio-notifications/tools"
+	"github.com/weridolin/simple-vedio-notifications/servers/http"
 )
 
 // type Context struct {
@@ -58,21 +54,21 @@ func Setup() {
 }
 
 func main() {
-	// Setup()
-	// http.Start()
-	config := config.GetAppConfig()
-	ctx := context.WithValue(context.Background(), "tp", schedulers.NewTickerPool(config.DefaultMaxTickerCount))
+	Setup()
+	http.Start()
+	// config := config.GetAppConfig()
+	// ctx := context.WithValue(context.Background(), "tp", schedulers.NewTickerPool(config.DefaultMaxTickerCount))
 
-	uuid := tools.GetUUID()
-	manager := schedulers.NewSchedulerManager(ctx, uuid)
-	task := bilibili.NewBiliBiliTask(
-		tools.Period{Cron: tools.Minutely},
-		map[string]interface{}{"盗月社食遇记": 99157282},
-		0,
-	)
-	scheduler := schedulers.NewScheduler(tools.Period{Cron: tools.Minutely}, "bilibili", 0, 1)
-	scheduler.AddTask(task)
-	manager.AddScheduler(scheduler)
-	manager.StartAll()
-	time.Sleep(time.Minute * 2)
+	// uuid := tools.GetUUID()
+	// manager := schedulers.NewSchedulerManager(ctx, uuid)
+	// task := bilibili.NewBiliBiliTask(
+	// 	tools.Period{Cron: tools.Minutely},
+	// 	map[string]interface{}{"盗月社食遇记": 99157282},
+	// 	0,
+	// )
+	// scheduler := schedulers.NewScheduler(tools.Period{Cron: tools.Minutely}, "bilibili", 0, 1)
+	// scheduler.AddTask(task)
+	// manager.AddScheduler(scheduler)
+	// manager.StartAll()
+	// time.Sleep(time.Minute * 2)
 }

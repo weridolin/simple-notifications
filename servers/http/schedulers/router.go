@@ -6,10 +6,13 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	config "github.com/weridolin/simple-vedio-notifications/configs"
 	"github.com/weridolin/simple-vedio-notifications/database"
 	"github.com/weridolin/simple-vedio-notifications/servers/common"
 	"github.com/weridolin/simple-vedio-notifications/tools"
 )
+
+var logger = config.GetLogger()
 
 func SchedulerRouteRegister(router *gin.RouterGroup) {
 	router.GET("", GetSchedulers)
@@ -69,7 +72,7 @@ func AddScheduler(c *gin.Context) {
 func DeleteScheduler(c *gin.Context) {
 	user, _ := c.Get("user")
 	schedulerId, _ := strconv.Atoi(c.Param("id"))
-	fmt.Println(schedulerId, ">>>>>>>")
+	logger.Println("delete scheduler id --> ", schedulerId)
 	scheduler, err := database.QueryScheduler(map[string]interface{}{"id": schedulerId})
 	if err != nil {
 		common.HttpResponse(c, http.StatusNotFound, -1, err.Error(), nil)

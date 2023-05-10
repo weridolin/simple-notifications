@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/weridolin/simple-vedio-notifications/servers/http/consumers"
 	"github.com/weridolin/simple-vedio-notifications/servers/http/middlewares"
 	"github.com/weridolin/simple-vedio-notifications/servers/http/schedulers"
 	"github.com/weridolin/simple-vedio-notifications/servers/http/users"
@@ -30,6 +31,7 @@ func Start() {
 	users.AuthorizationRouteRegister(v1.Group("/auth"))
 	schedulers.SchedulerRouteRegister(v1.Group("/schedulers"))
 	schedulers.TasksRouteRegister(v1.Group("/tasks"))
+	consumers.EmailRouterRegister(v1.Group("/consumers/notifiers/email"))
 
 	srv := &http.Server{
 		Addr:    ":8080",
