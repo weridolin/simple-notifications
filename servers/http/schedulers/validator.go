@@ -13,8 +13,11 @@ func init() {
 }
 
 type SchedulerValidator struct {
-	Period string `json:"period" binding:"required" example:"0 0 0 * * *" form:"period" validate:"cronValidate"` // cron 表达式
-	Task   []int  `json:"task" form:"task"`
+	Period      string `json:"period" binding:"required" example:"0 0 0 * * *" form:"period" validate:"cronValidate"` // cron 表达式
+	Task        []int  `json:"task" form:"task"`
+	Platform    string `json:"platform" form:"platform"`
+	Name        string `json:"name" form:"name"`
+	Description string `json:"description" form:"description"`
 }
 
 func (u *SchedulerValidator) Bind(c *gin.Context) error {
@@ -39,10 +42,11 @@ func (u *QuerySchedulerValidator) Bind(c *gin.Context) error {
 }
 
 type TaskValidator struct {
-	PlatForm   string                 `json:"platform" binding:"required" example:"youku" form:"platform"`
-	Ups        map[string]interface{} `json:"ups" binding:"required" form:"ups"`
-	Schedulers []int                  `json:"schedulers" binding:"required" form:"schedulers"`
-	Name       string                 `json:"name"  form:"name"`
+	Platform    string                 `json:"platform" binding:"required" example:"youku" form:"platform"`
+	Ups         map[string]interface{} `json:"ups" binding:"required" form:"ups"`
+	Schedulers  []int                  `json:"schedulers" binding:"required" form:"schedulers"`
+	Name        string                 `json:"name"  form:"name"`
+	Description string                 `json:"description"  form:"description"`
 }
 
 func (u *TaskValidator) Bind(c *gin.Context) error {

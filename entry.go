@@ -55,12 +55,13 @@ func Setup() {
 
 func main() {
 	Setup()
-	http.Start()
 	// config := config.GetAppConfig()
 	// ctx := context.WithValue(context.Background(), "tp", schedulers.NewTickerPool(config.DefaultMaxTickerCount))
-
 	// uuid := tools.GetUUID()
 	// manager := schedulers.NewSchedulerManager(ctx, uuid)
+
+	// sync := schedulers.NewSynchronizer()
+	// go sync.Start()
 	// task := bilibili.NewBiliBiliTask(
 	// 	tools.Period{Cron: tools.Minutely},
 	// 	map[string]interface{}{"盗月社食遇记": 99157282},
@@ -70,5 +71,6 @@ func main() {
 	// scheduler.AddTask(task)
 	// manager.AddScheduler(scheduler)
 	// manager.StartAll()
-	// time.Sleep(time.Minute * 2)
+	http.Start()
+	// time.Sleep(time.Minute * 10)
 }

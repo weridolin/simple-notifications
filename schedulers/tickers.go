@@ -45,7 +45,7 @@ func (t *Ticker) Start() {
 		s.ticker = t
 		s.Status = 1
 	}
-	logger.Println("start ticker,ticker scheduler -> ", t.ScheduLerCache)
+	logger.Println("start ticker,ticker scheduler count -> ", len(t.ScheduLerCache))
 	t.Executor.Start()
 	// wg.Wait()
 	// logger.Println("ticker run finish...begin to adjust pool ")

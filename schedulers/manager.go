@@ -28,7 +28,7 @@ func NewSchedulerManager(ctx context.Context, key string) *SchedulerManager {
 	return &SchedulerManager{Ctx: ctx, Schedulers: make(map[int]*Scheduler), Key: key, PlatFormSchedulerCache: make(map[string][]int), StartAfterAdd: false}
 }
 
-func (sm *SchedulerManager) AddScheduler(s *Scheduler) (*SchedulerManager, error) {
+func (sm *SchedulerManager) AddScheduler(s *Scheduler, startAtOnce bool) (*SchedulerManager, error) {
 	sm.lock.RLock()
 	defer sm.lock.RUnlock()
 	// scheduler缓存
@@ -45,8 +45,11 @@ func (sm *SchedulerManager) AddScheduler(s *Scheduler) (*SchedulerManager, error
 		sm.PlatFormSchedulerCache[s.PlatForm] = append(sm.PlatFormSchedulerCache[s.PlatForm], s.DBIndex)
 	}
 
-	if sm.StartAfterAdd {
-		s.Start()
+	if startAtOnce {
+		tp := sm.Ctx.Value("tp").(*TickerPool)
+		sm.lock.RLock()
+		defer sm.lock.RUnlock()
+		tp.SubmitScheduler(s)
 	}
 	return sm, nil
 }

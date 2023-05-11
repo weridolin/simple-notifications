@@ -5,13 +5,14 @@ import "gorm.io/gorm"
 type Task struct {
 	Schedulers []*Scheduler `gorm:"many2many:scheduler_task"` // scheduler和task是多对多的关系
 	gorm.Model
-	PlatForm      string           `gorm:"comment:平台"`
-	Ups           Ups              `gorm:"comment:订阅的该平台的up主;type:json"` // 用json存储map
-	EmailNotifier []*EmailNotifier `gorm:"many2many:email_notifier_tasks;"`
-	User          User             `gorm:"foreignKey:UserID;OnDelete:CASCADE;AssociationForeignKey:ID"` // 外键约束
-	UserID        uint             `gorm:"comment:用户ID"`
-	Active        bool             `gorm:"default:true"`
-	Name          string           `gorm:"comment:任务名称"`
+	Platform       string           `gorm:"comment:平台"`
+	Ups            Ups              `gorm:"comment:订阅的该平台的up主;type:json"` // 用json存储map
+	EmailNotifiers []*EmailNotifier `gorm:"many2many:email_notifier_tasks;"`
+	User           User             `gorm:"foreignKey:UserID;OnDelete:CASCADE;AssociationForeignKey:ID"` // 外键约束
+	UserID         uint             `gorm:"comment:用户ID"`
+	Active         bool             `gorm:"default:true"`
+	Name           string           `gorm:"comment:任务名称"`
+	Description    string           `gorm:"comment:任务描述"`
 }
 
 func (Task) TableName() string {
@@ -42,13 +43,14 @@ func (t *Task) Update() error {
 	return err
 }
 
-func CreateTask(user User, ups Ups, platform, name string) error {
+func CreateTask(user User, ups Ups, platform, name, description string) error {
 	db := GetDB()
 	new := Task{
-		PlatForm: platform,
-		Ups:      ups,
-		UserID:   user.ID,
-		Name:     name,
+		Platform:    platform,
+		Ups:         ups,
+		UserID:      user.ID,
+		Name:        name,
+		Description: description,
 	}
 	err := db.Create(&new).Error
 	return err

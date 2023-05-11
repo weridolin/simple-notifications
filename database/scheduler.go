@@ -8,22 +8,28 @@ import (
 type Scheduler struct {
 	User User `gorm:"foreignKey:UserID;OnDelete:CASCADE;AssociationForeignKey:ID"` // 外键约束
 	gorm.Model
-	Period string  `gorm:"comment:时间"`
-	UserID uint    `gorm:"comment:用户ID"`
-	Tasks  []*Task `gorm:"many2many:scheduler_task"`   // scheduler和task是多对多的关系
-	Type   string  `gorm:"comment:类型;default:builtin"` // builtin:内置, custom:自定义
-	Active bool    `gorm:"default:true"`
+	Period      string  `gorm:"comment:时间"`
+	UserID      uint    `gorm:"comment:用户ID"`
+	Tasks       []*Task `gorm:"many2many:scheduler_task"`   // scheduler和task是多对多的关系
+	Type        string  `gorm:"comment:类型;default:builtin"` // builtin:内置, custom:自定义
+	Active      bool    `gorm:"default:true"`
+	Platform    string  `gorm:"comment:平台"`
+	Name        string  `gorm:"comment:计划名称"`
+	Description string  `gorm:"comment:计划描述"`
 }
 
 func (Scheduler) TableName() string {
 	return "scheduler"
 }
 
-func CreateScheduler(user User, period string) error {
+func CreateScheduler(user User, period string, platform, name, description string) error {
 	scheduler := Scheduler{
-		UserID: user.ID,
-		Period: period,
-		Type:   "custom",
+		UserID:      user.ID,
+		Period:      period,
+		Type:        "custom",
+		Platform:    platform,
+		Name:        name,
+		Description: description,
 	}
 	_, e := QueryScheduler(scheduler)
 	if e != nil {
@@ -57,7 +63,7 @@ func QueryScheduler(condition interface{}) (Scheduler, error) {
 func FullQuerySchedulers(condition interface{}, page, size int) ([]*Scheduler, error) {
 	db := GetDB()
 	var schedulers []*Scheduler
-	err := db.Model(&Scheduler{}).Preload("Tasks").Where(condition).Offset((page - 1) * size).Limit(size).Find(&schedulers).Error
+	err := db.Model(&Scheduler{}).Preload("Tasks").Preload("Tasks.EmailNotifiers").Where(condition).Offset((page - 1) * size).Limit(size).Find(&schedulers).Error
 	return schedulers, err
 }
 

@@ -6,6 +6,7 @@
 package schedulers
 
 import (
+	"github.com/weridolin/simple-vedio-notifications/common"
 	tools "github.com/weridolin/simple-vedio-notifications/tools"
 )
 
@@ -30,10 +31,11 @@ func NewScheduler(period tools.Period, platform string, status int8, dbindex int
 }
 
 func (s *Scheduler) Start() {
+	logger.Println("start scheduler...task ->", s.Tasks)
 	s.Status = 1
-	var i ITask
+	var i common.ITask
 	for _, t := range s.Tasks {
-		i = t.(ITask)
+		i = t.(common.ITask)
 		i.Run()
 	}
 	// switch s.PlatForm {
@@ -47,9 +49,9 @@ func (s *Scheduler) Start() {
 
 func (s *Scheduler) Stop() {
 	s.Status = 0
-	var i ITask
+	var i common.ITask
 	for _, t := range s.Tasks {
-		i = t.(ITask)
+		i = t.(common.ITask)
 		i.Stop()
 	}
 	logger.Println("stop scheduler finish", "DBIndex -> ", s.DBIndex)
@@ -57,19 +59,19 @@ func (s *Scheduler) Stop() {
 
 func (s *Scheduler) AddTask(t interface{}) {
 	for _, task := range s.Tasks {
-		if task.(Meta).DBIndex == t.(Meta).DBIndex {
+		if task.(common.Meta).DBIndex == t.(common.Meta).DBIndex {
 			logger.Println("task already exist in scheduler,period -> ", s.Period.Cron, " platform -> ",
-				s.PlatForm, " taskID -> ", t.(Meta).DBIndex, "ScheduleID", s.DBIndex)
+				s.PlatForm, " taskID -> ", t.(common.Meta).DBIndex, "ScheduleID", s.DBIndex)
 			return
 		}
 	}
 	s.Tasks = append(s.Tasks, t)
 }
 
-func (s *Scheduler) RemoveTask(t Meta) {
+func (s *Scheduler) RemoveTask(t common.Meta) {
 	logger.Println("remove task ID -> ", t.DBIndex, " from scheduler ID -> ", s.DBIndex)
 	for i, task := range s.Tasks {
-		if task.(Meta).DBIndex == t.DBIndex {
+		if task.(common.Meta).DBIndex == t.DBIndex {
 			s.Tasks = append(s.Tasks[:i], s.Tasks[i+1:]...)
 			// task.(Task).Stop() #TODO
 		}

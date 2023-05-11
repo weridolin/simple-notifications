@@ -107,7 +107,7 @@ func GetEmailNotifier(c *gin.Context) {
 		return
 	}
 	serializer := EmailNotifierSerializer{}
-	common.HttpResponse(c, http.StatusOK, 0, "获取成功", serializer.FromSchedulerModels(notifiers, user.(database.User)))
+	common.HttpResponse(c, http.StatusOK, 0, "获取成功", serializer.FromEmailNotifierModels(notifiers, user.(database.User)))
 	return
 }
 

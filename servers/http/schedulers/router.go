@@ -60,7 +60,8 @@ func AddScheduler(c *gin.Context) {
 		return
 	}
 
-	err := database.CreateScheduler(user.(database.User), SchedulerValidator.Period)
+	err := database.CreateScheduler(user.(database.User), SchedulerValidator.Period, SchedulerValidator.Platform,
+		SchedulerValidator.Name, SchedulerValidator.Description)
 	if err != nil {
 		common.HttpResponse(c, http.StatusBadRequest, -1, err.Error(), nil)
 		return
@@ -109,7 +110,7 @@ func UpdateScheduler(c *gin.Context) {
 		return
 	}
 
-	err = scheduler.Update(map[string]interface{}{"period": SchedulerValidator.Period})
+	err = scheduler.Update(map[string]interface{}{"period": SchedulerValidator.Period, "platform": SchedulerValidator.Platform})
 	if err != nil {
 		common.HttpResponse(c, http.StatusBadRequest, -1, err.Error(), nil)
 		return
@@ -144,7 +145,7 @@ func CreateTask(c *gin.Context) {
 		common.HttpResponse(c, http.StatusUnprocessableEntity, -1, "请求参数错误", tools.NewValidatorError(err))
 		return
 	}
-	err := database.CreateTask(user.(database.User), taskValidator.Ups, taskValidator.PlatForm, taskValidator.Name)
+	err := database.CreateTask(user.(database.User), taskValidator.Ups, taskValidator.Platform, taskValidator.Name, taskValidator.Description)
 	if err != nil {
 		common.HttpResponse(c, http.StatusBadRequest, -1, err.Error(), nil)
 		return
@@ -200,7 +201,7 @@ func UpdateTask(c *gin.Context) {
 		return
 	}
 	task.Ups = taskValidator.Ups
-	task.PlatForm = taskValidator.PlatForm
+	task.Platform = taskValidator.Platform
 	task.Name = taskValidator.Name
 	err = task.Update()
 	if err != nil {

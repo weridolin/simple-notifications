@@ -1,10 +1,12 @@
-package schedulers
+package common
 
 import "errors"
 
 type Meta struct {
-	DBIndex   uint
-	CallBacks []func() //每次运行回调函数列表
+	DBIndex     uint
+	Name        string
+	Description string
+	CallBacks   []func() //每次运行回调函数列表
 }
 
 func (t *Meta) Run() error {

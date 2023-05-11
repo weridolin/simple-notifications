@@ -9,8 +9,9 @@ import (
 	"time"
 
 	"github.com/mitchellh/mapstructure"
+	"github.com/weridolin/simple-vedio-notifications/common"
 	config "github.com/weridolin/simple-vedio-notifications/configs"
-	"github.com/weridolin/simple-vedio-notifications/schedulers"
+	"github.com/weridolin/simple-vedio-notifications/database"
 	tools "github.com/weridolin/simple-vedio-notifications/tools"
 )
 
@@ -83,21 +84,26 @@ type VideoInfo struct {
 }
 
 type BiliBiliTask struct {
-	schedulers.Meta
-	Ups    map[string]interface{}
-	Period tools.Period
-	Error  error
-	Result interface{}
+	common.Meta
+	Ups            database.Ups
+	Period         tools.Period
+	Error          error
+	Result         interface{}
+	EmailNotifiers []*database.EmailNotifier
 }
 
-func NewBiliBiliTask(period tools.Period, ups map[string]interface{}, dbindex uint) *BiliBiliTask {
+func NewBiliBiliTask(period tools.Period, ups database.Ups, dbindex uint, name, description string,
+	emailNotifiers []*database.EmailNotifier) *BiliBiliTask {
 	t := &BiliBiliTask{
-		Meta: schedulers.Meta{
-			DBIndex:   dbindex,
-			CallBacks: make([]func(), 0),
+		Meta: common.Meta{
+			DBIndex:     dbindex,
+			CallBacks:   make([]func(), 0),
+			Name:        name,
+			Description: description,
 		},
-		Period: period,
-		Ups:    ups,
+		EmailNotifiers: emailNotifiers,
+		Period:         period,
+		Ups:            ups,
 	}
 	t.CallBacks = append(t.CallBacks, t.UpdateResult)
 	return t
@@ -119,7 +125,7 @@ func (t *BiliBiliTask) Run() {
 	for up_name, up_id := range t.Ups {
 		logger.Println("get up public records", "up_name = ", up_name, "up_id = ", up_id)
 		var data map[string]interface{}
-		url := fmt.Sprintf(GetVideoInfoUrl, up_id)
+		url := fmt.Sprintf(GetVideoInfoUrl, int(up_id.(float64)))
 		logger.Println("url = ", url)
 		req, _ := http.NewRequest("GET", url, nil)
 		req.Header.Add("Host", Host)
