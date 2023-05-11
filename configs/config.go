@@ -12,6 +12,7 @@ type Config struct {
 	NotifierBrokerUri              string
 	DefaultTickerMaxSchedulerCount int
 	DefaultMaxTickerCount          int
+	RabbitMQUri                    string
 }
 
 func GetAppConfig() *Config {
@@ -20,6 +21,7 @@ func GetAppConfig() *Config {
 			PlatFormWhiteList:              make([]string, 0),
 			DBUri:                          os.Getenv("DBUri"),
 			NotifierBrokerUri:              os.Getenv("NotifierBrokerUri"),
+			RabbitMQUri:                    os.Getenv("RabbitMQUri"),
 			DefaultTickerMaxSchedulerCount: 100,
 			DefaultMaxTickerCount:          2,
 		}

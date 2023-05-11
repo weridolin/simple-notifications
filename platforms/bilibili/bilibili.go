@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/mitchellh/mapstructure"
+	clients "github.com/weridolin/simple-vedio-notifications/clients"
 	"github.com/weridolin/simple-vedio-notifications/common"
 	config "github.com/weridolin/simple-vedio-notifications/configs"
 	"github.com/weridolin/simple-vedio-notifications/database"
@@ -105,7 +106,7 @@ func NewBiliBiliTask(period tools.Period, ups database.Ups, dbindex uint, name, 
 		Period:         period,
 		Ups:            ups,
 	}
-	t.CallBacks = append(t.CallBacks, t.UpdateResult)
+	t.CallBacks = append(t.CallBacks, t.UpdateResult, t.PublicEmailNotifyMessage)
 	return t
 }
 
@@ -115,6 +116,26 @@ func (t *BiliBiliTask) UpdateResult() {
 
 	}
 	logger.Println(t.DBIndex, " update result")
+}
+
+func (t *BiliBiliTask) PublicEmailNotifyMessage() {
+	if t.Error != nil && len(t.EmailNotifiers) > 0 {
+		rabbitMq := clients.NewRabbitMQTopic("emailNotify", "bilibili.email.notify")
+		for _, emailNotifier := range t.EmailNotifiers {
+			message, err := json.Marshal(
+				map[string]interface{}{
+					"sender":   emailNotifier.Sender,
+					"pwd":      emailNotifier.PWD,
+					"content":  "todo",
+					"receiver": emailNotifier.Receiver,
+				})
+			if err != nil {
+				logger.Println("json marshal error", err)
+			}
+			rabbitMq.PublishTopic(message)
+			logger.Panicln("send message to rabbitmq")
+		}
+	}
 }
 
 func (t *BiliBiliTask) Run() {
