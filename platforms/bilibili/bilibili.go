@@ -119,8 +119,13 @@ func (t *BiliBiliTask) UpdateResult() {
 }
 
 func (t *BiliBiliTask) PublicEmailNotifyMessage() {
+	logger.Println("public email notify message")
 	if t.Error != nil && len(t.EmailNotifiers) > 0 {
-		rabbitMq := clients.NewRabbitMQTopic("emailNotify", "bilibili.email.notify")
+		rabbitMq := clients.NewRabbitMQ()
+		rabbitMq.CreateExchange(common.EmailExchangeName, "topic").
+			CreateQueue(common.EmailMessageQueueName, true).
+			ExchangeBindQueue(common.EmailMessageQueueName, "*.email.*", common.EmailExchangeName)
+		// rabbitMq.CreateExchangeAndBindQueue(common.EmailExchangeName, "*.email.*", common.EmailMessageQueueName, "topic")
 		for _, emailNotifier := range t.EmailNotifiers {
 			message, err := json.Marshal(
 				map[string]interface{}{
@@ -129,11 +134,13 @@ func (t *BiliBiliTask) PublicEmailNotifyMessage() {
 					"content":  "todo",
 					"receiver": emailNotifier.Receiver,
 				})
+			logger.Println("message -> ", string(message))
 			if err != nil {
 				logger.Println("json marshal error", err)
+				return
 			}
-			rabbitMq.PublishTopic(message)
-			logger.Panicln("send message to rabbitmq")
+			rabbitMq.Publish(common.EmailExchangeName, "bilibili.email.notify", message)
+			logger.Println("send message to rabbitmq")
 		}
 	}
 }
@@ -155,7 +162,8 @@ func (t *BiliBiliTask) Run() {
 		req.Header.Add("User-Agent", GetRandomUserAgent())
 		resp, http_err := client.Do(req)
 		if http_err != nil {
-			logger.Panicln("http get err = ", http_err)
+			logger.Println("http get err = ", http_err)
+			goto Callback
 			// panic(http_err)
 		}
 		defer resp.Body.Close()
@@ -181,6 +189,7 @@ func (t *BiliBiliTask) Run() {
 	}
 
 	// 执行callback
+Callback:
 	for _, callback := range t.CallBacks {
 		callback()
 	}

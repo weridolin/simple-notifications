@@ -7,8 +7,10 @@ import (
 	"time"
 
 	"github.com/robfig/cron/v3"
+	"github.com/weridolin/simple-vedio-notifications/consumers"
 	"github.com/weridolin/simple-vedio-notifications/database"
-	"github.com/weridolin/simple-vedio-notifications/servers/http"
+	"github.com/weridolin/simple-vedio-notifications/schedulers"
+	// httpConsumers "github.com/weridolin/simple-vedio-notifications/servers/http/consumers"
 )
 
 // type Context struct {
@@ -59,9 +61,10 @@ func main() {
 	// ctx := context.WithValue(context.Background(), "tp", schedulers.NewTickerPool(config.DefaultMaxTickerCount))
 	// uuid := tools.GetUUID()
 	// manager := schedulers.NewSchedulerManager(ctx, uuid)
-
-	// sync := schedulers.NewSynchronizer()
-	// go sync.Start()
+	emailConsumer := consumers.NewEmailConsumer()
+	go emailConsumer.Start()
+	sync := schedulers.NewSynchronizer()
+	go sync.Start()
 	// task := bilibili.NewBiliBiliTask(
 	// 	tools.Period{Cron: tools.Minutely},
 	// 	map[string]interface{}{"盗月社食遇记": 99157282},
@@ -71,6 +74,6 @@ func main() {
 	// scheduler.AddTask(task)
 	// manager.AddScheduler(scheduler)
 	// manager.StartAll()
-	http.Start()
-	// time.Sleep(time.Minute * 10)
+	// http.Start()
+	time.Sleep(time.Minute * 10)
 }

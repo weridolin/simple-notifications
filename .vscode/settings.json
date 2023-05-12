@@ -1,8 +1,10 @@
 {
     "cSpell.words": [
+        "amqp",
         "bilibili",
         "dbindex",
-        "mapstructure"
+        "mapstructure",
+        "rabbitmq"
     ],
     "vue.features.codeActions.enable": false
 }
