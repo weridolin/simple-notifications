@@ -10,7 +10,7 @@ import (
 
 var logger = config.GetLogger()
 
-func SendEmail(receiver []string, subject string, body string, sender, pwd string) error {
+func SendEmail(receiver []string, subject string, content string, sender, pwd string) error {
 	e := email.NewEmail()
 	//设置发送方的邮箱
 	e.From = fmt.Sprintf("simple-Notification <%s>", sender)

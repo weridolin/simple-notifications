@@ -5,4 +5,5 @@ type EmailNotifyMessage struct {
 	PWD      string   `json:"pwd"`
 	Content  string   `json:"content"`
 	Receiver []string `json:"receiver"`
+	Subject  string   `json:"subject"`
 }
