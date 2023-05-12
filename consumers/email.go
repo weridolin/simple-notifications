@@ -26,15 +26,12 @@ func NewEmailConsumer() *EmailConsumer {
 }
 
 func (c *EmailConsumer) Start() {
-	// c.MQClient.QueueName = "consumer.email.test"
-	// c.MQClient.CreateExchangeAndBindQueue()
-	// c.MQClient.CreateExchange(common.EmailExchangeName, "topic").
-	// 	CreateQueue(common.EmailMessageQueueName, true)
 	c.MQClient.ReceiveTopic(common.EmailMessageQueueName, c.OnMessage)
 }
 
 func (c *EmailConsumer) OnMessage(message []byte) error {
 	var err error
 	logger.Println("email consumer get message from rabbitmq ->", string(message))
+	// tools.SendEmail()
 	return err
 }

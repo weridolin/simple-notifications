@@ -125,7 +125,6 @@ func (t *BiliBiliTask) PublicEmailNotifyMessage() {
 		rabbitMq.CreateExchange(common.EmailExchangeName, "topic").
 			CreateQueue(common.EmailMessageQueueName, true).
 			ExchangeBindQueue(common.EmailMessageQueueName, "*.email.*", common.EmailExchangeName)
-		// rabbitMq.CreateExchangeAndBindQueue(common.EmailExchangeName, "*.email.*", common.EmailMessageQueueName, "topic")
 		for _, emailNotifier := range t.EmailNotifiers {
 			message, err := json.Marshal(
 				map[string]interface{}{
