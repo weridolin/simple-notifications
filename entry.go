@@ -10,6 +10,7 @@ import (
 	"github.com/weridolin/simple-vedio-notifications/consumers"
 	"github.com/weridolin/simple-vedio-notifications/database"
 	"github.com/weridolin/simple-vedio-notifications/schedulers"
+	"github.com/weridolin/simple-vedio-notifications/servers/http"
 	// httpConsumers "github.com/weridolin/simple-vedio-notifications/servers/http/consumers"
 )
 
@@ -45,6 +46,7 @@ func TestCron() {
 func Setup() {
 	//  DB迁移
 	DB := database.GetDB()
+	// AutoMigrate : 1 添加字段会自定添加  2.删除字段原来的会保存，新的记录会默认删除的字段为空
 	DB.Set("gorm:table_options", "ENGINE=InnoDB").AutoMigrate(
 		&database.User{},
 		&database.Scheduler{},
@@ -74,6 +76,6 @@ func main() {
 	// scheduler.AddTask(task)
 	// manager.AddScheduler(scheduler)
 	// manager.StartAll()
-	// http.Start()
-	time.Sleep(time.Minute * 10)
+	http.Start()
+	// time.Sleep(time.Minute * 10)
 }

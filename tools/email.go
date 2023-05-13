@@ -19,9 +19,7 @@ func SendEmail(receiver []string, subject string, content string, sender, pwd st
 	//设置主题
 	e.Subject = subject
 	//设置文件发送的内容
-	e.HTML = []byte(`
-		<h1><a href="http://www.topgoer.com/">go语言中文网站</a></h1>    
-    `)
+	e.HTML = []byte(content)
 	//设置服务器相关的配置
 	err := e.Send("smtp.qq.com:25", smtp.PlainAuth("", sender, pwd, "smtp.qq.com"))
 	if err != nil {

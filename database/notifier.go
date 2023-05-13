@@ -2,7 +2,6 @@ package database
 
 import "gorm.io/gorm"
 
-// todo support template
 type EmailNotifier struct {
 	gorm.Model
 	UserID   uint

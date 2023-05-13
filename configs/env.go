@@ -12,5 +12,4 @@ func init() {
 	} else {
 		logger.Println("loading env from .env success")
 	}
-	// fmt.Println()
 }
