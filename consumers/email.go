@@ -18,10 +18,10 @@ type EmailConsumer struct {
 	Interval      uint //两次发送的时间间隔
 }
 
-func NewEmailConsumer() *EmailConsumer {
+func NewEmailConsumer(id string) *EmailConsumer {
 	var AppConfig = config.GetAppConfig()
 	return &EmailConsumer{
-		MQClient:      clients.NewRabbitMQ(),
+		MQClient:      clients.NewRabbitMQ(id),
 		DefaultSender: AppConfig.DefaultSender,
 		DefaultPWD:    AppConfig.DefaultPWD,
 		Interval:      1,
@@ -33,6 +33,7 @@ func (c *EmailConsumer) Start() {
 }
 
 func (c *EmailConsumer) OnMessage(message []byte) error {
+	logger.Println("email consumer-> ", c.MQClient.ID, " get message from rabbitmq ->", string(message))
 	var err error
 	// logger.Println("email consumer get message from rabbitmq ->", string(message))
 	EmailNotifyMessage := EmailNotifyMessage{Subject: "bilibili up 订阅结果通知"}

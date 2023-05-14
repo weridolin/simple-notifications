@@ -17,6 +17,7 @@ type Config struct {
 	DefaultSender                  string // EmailConsumer默认发送账号，没有指定的话
 	DefaultPWD                     string // EmailConsumer默认发送账号密码，没有指定的话
 	EmailConsumerCount             int    // EmailConsumer的数量
+	EmailMessageAckTimeOut         int    // EmailConsumer消息ack超市时间
 }
 
 func StrToInt(s string) int {
@@ -39,6 +40,8 @@ func GetAppConfig() *Config {
 			DefaultSender:                  os.Getenv("DefaultSender"),
 			DefaultPWD:                     os.Getenv("DefaultPWD"),
 			EmailConsumerCount:             StrToInt(os.Getenv("EmailConsumerCount")),
+			EmailMessageAckTimeOut:         StrToInt(os.Getenv("EmailMessageAckTimeOut")), // EmailConsumer消息ack超市时间
+
 		}
 	}
 	return ConfigInstance

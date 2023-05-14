@@ -135,7 +135,7 @@ func (t *BiliBiliTask) PublicEmailNotifyMessage() {
 		logger.Println("error -> ", t.Error)
 		return
 	} else if len(t.EmailNotifiers) > 0 {
-		rabbitMq := clients.NewRabbitMQ()
+		rabbitMq := clients.NewRabbitMQ(tools.GetUUID())
 		rabbitMq.CreateExchange(common.EmailExchangeName, "topic").
 			CreateQueue(common.EmailMessageQueueName, true).
 			ExchangeBindQueue(common.EmailMessageQueueName, "*.email.*", common.EmailExchangeName)
