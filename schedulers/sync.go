@@ -114,6 +114,12 @@ func (s *Synchronizer) SyncAtOnce() {
 }
 
 func (s *Synchronizer) Setup() {
+	rabbitMq := clients.NewRabbitMQ(tools.GetUUID())
+	//创建1个email notify 死信交换机和队列
+	rabbitMq.CreateExchange(appConfig.EmailMessageDlxExchangeName, "direct").
+		CreateQueue(appConfig.EmailMessageDlxQueueName, true, nil).
+		ExchangeBindQueue(appConfig.EmailMessageDlxQueueName, appConfig.EmailMessageDlxQueueName, appConfig.EmailMessageDlxExchangeName)
+
 	// 配置队列参数
 	var dlxExchangeName = appConfig.EmailMessageDlxExchangeName
 	argsQue := make(map[string]interface{})
@@ -125,7 +131,6 @@ func (s *Synchronizer) Setup() {
 	argsQue["x-message-ttl"] = appConfig.EmailMessageAckTimeOut //单位毫秒
 
 	// rabbitmq创建一个EmailNotify相关的exchange和queue
-	rabbitMq := clients.NewRabbitMQ(tools.GetUUID())
 	rabbitMq.CreateExchange(appConfig.EmailMessageExchangeName, "topic").
 		CreateQueue(appConfig.EmailMessageQueueName, true, argsQue).
 		ExchangeBindQueue(appConfig.EmailMessageQueueName, "*.email.*", appConfig.EmailMessageExchangeName)

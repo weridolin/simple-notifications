@@ -7,11 +7,8 @@ import (
 	"time"
 
 	"github.com/robfig/cron/v3"
-	config "github.com/weridolin/simple-vedio-notifications/configs"
-	"github.com/weridolin/simple-vedio-notifications/consumers"
 	"github.com/weridolin/simple-vedio-notifications/database"
 	"github.com/weridolin/simple-vedio-notifications/schedulers"
-	"github.com/weridolin/simple-vedio-notifications/tools"
 	// httpConsumers "github.com/weridolin/simple-vedio-notifications/servers/http/consumers"
 )
 
@@ -63,15 +60,11 @@ func main() {
 
 	sync := schedulers.NewSynchronizer()
 	go sync.Start()
-	config := config.GetAppConfig()
-	// ctx := context.WithValue(context.Background(), "tp", schedulers.NewTickerPool(config.DefaultMaxTickerCount))
-	// uuid := tools.GetUUID()
-	// manager := schedulers.NewSchedulerManager(ctx, uuid)
-	for i := 0; i < config.EmailConsumerCount; i++ {
-		emailConsumer := consumers.NewEmailConsumer(tools.GetUUID())
-		emailConsumer.MQClient.SetDLX()
-		go emailConsumer.Start()
-	}
+	// config := config.GetAppConfig()
+	// for i := 0; i < config.EmailConsumerCount; i++ {
+	// 	emailConsumer := consumers.NewEmailConsumer(tools.GetUUID())
+	// 	go emailConsumer.Start()
+	// }
 
 	// rabbitMq := clients.NewRabbitMQ(tools.GetUUID())
 	// rabbitMq.CreateExchange(common.EmailExchangeName, "topic").

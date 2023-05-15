@@ -5,8 +5,6 @@
 package clients
 
 import (
-	"fmt"
-
 	"github.com/streadway/amqp"
 	config "github.com/weridolin/simple-vedio-notifications/configs"
 )
@@ -48,20 +46,20 @@ func NewRabbitMQ(id string) *RabbitMQ {
 	return instance
 }
 
-func (r *RabbitMQ) SetDLX() {
+// func (r *RabbitMQ) CreateDl() {
 
-	//声明死信交换器
-	var dlxExchangeName = "email.dlx.exchange"
-	r.CreateExchange(dlxExchangeName, "direct")
-	//声明队列
-	_, err := r.channel.QueueDeclare("email.dlx.queue", true, false, false, false, nil)
-	if err != nil {
-		fmt.Println("set email dlx queue  err :", err)
-		return
-	}
-	r.ExchangeBindQueue("email.dlx.queue", "email.dlx.queue", dlxExchangeName)
+// 	//声明死信交换器
+// 	var dlxExchangeName =
+// 	r.CreateExchange(dlxExchangeName, "direct")
+// 	//声明队列
+// 	_, err := r.channel.QueueDeclare("email.dlx.queue", true, false, false, false, nil)
+// 	if err != nil {
+// 		fmt.Println("set email dlx queue  err :", err)
+// 		return
+// 	}
+// 	r.ExchangeBindQueue("email.dlx.queue", "email.dlx.queue", dlxExchangeName)
 
-}
+// }
 
 func (r *RabbitMQ) CreateExchange(exchange, t string) *RabbitMQ {
 	err := r.channel.ExchangeDeclare(
