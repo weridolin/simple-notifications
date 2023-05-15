@@ -120,7 +120,7 @@ func (s *Synchronizer) Setup() {
 	//添加死信队列交换器属性
 	argsQue["x-dead-letter-exchange"] = dlxExchangeName
 	//指定死信队列的路由key，不指定使用队列路由键
-	argsQue["x-dead-letter-routing-key"] = "email.dlx.queue"
+	argsQue["x-dead-letter-routing-key"] = appConfig.EmailMessageDlxQueueName
 	//添加过期时间
 	argsQue["x-message-ttl"] = appConfig.EmailMessageAckTimeOut //单位毫秒
 
