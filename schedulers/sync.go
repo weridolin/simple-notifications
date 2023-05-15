@@ -10,11 +10,14 @@ import (
 	"context"
 	"time"
 
+	"github.com/weridolin/simple-vedio-notifications/clients"
 	config "github.com/weridolin/simple-vedio-notifications/configs"
 	"github.com/weridolin/simple-vedio-notifications/database"
 	"github.com/weridolin/simple-vedio-notifications/platforms/bilibili"
 	"github.com/weridolin/simple-vedio-notifications/tools"
 )
+
+var appConfig = config.GetAppConfig()
 
 type Synchronizer struct {
 	MaxInterval      int
@@ -50,6 +53,7 @@ func (s *Synchronizer) Sleep(interval int) {
 }
 
 func (s *Synchronizer) Start() {
+	s.Setup()
 	s.MsgChannel = make(chan string)
 	s.StopSleepChannel = make(chan bool)
 	for {
@@ -107,4 +111,23 @@ func (s *Synchronizer) Stop() {
 
 func (s *Synchronizer) SyncAtOnce() {
 	s.StopSleepChannel <- true
+}
+
+func (s *Synchronizer) Setup() {
+	// 配置队列参数
+	var dlxExchangeName = appConfig.EmailMessageDlxExchangeName
+	argsQue := make(map[string]interface{})
+	//添加死信队列交换器属性
+	argsQue["x-dead-letter-exchange"] = dlxExchangeName
+	//指定死信队列的路由key，不指定使用队列路由键
+	argsQue["x-dead-letter-routing-key"] = "email.dlx.queue"
+	//添加过期时间
+	argsQue["x-message-ttl"] = appConfig.EmailMessageAckTimeOut //单位毫秒
+
+	// rabbitmq创建一个EmailNotify相关的exchange和queue
+	rabbitMq := clients.NewRabbitMQ(tools.GetUUID())
+	rabbitMq.CreateExchange(appConfig.EmailMessageExchangeName, "topic").
+		CreateQueue(appConfig.EmailMessageQueueName, true, argsQue).
+		ExchangeBindQueue(appConfig.EmailMessageQueueName, "*.email.*", appConfig.EmailMessageExchangeName)
+
 }

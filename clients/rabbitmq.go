@@ -78,22 +78,11 @@ func (r *RabbitMQ) CreateExchange(exchange, t string) *RabbitMQ {
 	return r
 }
 
-func (r *RabbitMQ) CreateQueue(queue string, durable bool) *RabbitMQ {
+func (r *RabbitMQ) CreateQueue(queue string, durable bool, argsParams map[string]interface{}) *RabbitMQ {
 	// 消息持久化的3个条件
 	// 1 投递消息的时候 durable 设置为 true，消息持久化；
 	// 2 消息已经到达持久化交换器上；
-	// 3 消息已经到达持久化的队列；
-
-	//声明死信交换器
-	var dlxExchangeName = "email.dlx.exchange"
-	argsQue := make(map[string]interface{})
-	//添加死信队列交换器属性
-	argsQue["x-dead-letter-exchange"] = dlxExchangeName
-	//指定死信队列的路由key，不指定使用队列路由键
-	//argsQue["x-dead-letter-routing-key"] = "zhe_mess"
-	//添加过期时间
-	argsQue["x-message-ttl"] = appConfig.EmailMessageAckTimeOut //单位毫秒
-	//声明队列
+	// 3 消息已经到达持久化的队列
 
 	//创建队列
 	_, err := r.channel.QueueDeclare(
@@ -102,7 +91,7 @@ func (r *RabbitMQ) CreateQueue(queue string, durable bool) *RabbitMQ {
 		false,   // 是否自动删除，当最后一个消费者断开连接之后队列是否自动被删除
 		false,   // exclusive 是否排他，如果设置为true，那么只有创建这个队列的channel才能访问，其他channel访问会报错,同时channel关闭后队列会被删除
 		false,   // no-wait 是否阻塞
-		argsQue,
+		argsParams,
 	)
 	r.failOnErr(err, "Failed to declare a queue")
 	return r
@@ -179,8 +168,10 @@ func (r *RabbitMQ) ReceiveTopic(queue string, callback func(msg []byte) error) {
 			err := callback(d.Body)
 			if err != nil {
 				logger.Println("consumer email notify message error ", err)
+				d.Reject(false) // 拒绝消息，requeue为true会重新放回队列，否则放回死信队列
+			} else {
+				d.Ack(false) // false 确认当前消息   true确认所有未确认的消息  未确认的消息状态未un ack，等到客户端重新连接后会变为ready
 			}
-			// d.Ack(false) // false 确认当前消息   true确认所有未确认的消息  未确认的消息状态未unacked，等到客户端重新连接后会变为ready
 		}
 	}()
 

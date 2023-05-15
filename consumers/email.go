@@ -4,12 +4,12 @@ import (
 	"encoding/json"
 
 	"github.com/weridolin/simple-vedio-notifications/clients"
-	"github.com/weridolin/simple-vedio-notifications/common"
 	config "github.com/weridolin/simple-vedio-notifications/configs"
 	"github.com/weridolin/simple-vedio-notifications/tools"
 )
 
 var logger = config.GetLogger()
+var appConfig = config.GetAppConfig()
 
 type EmailConsumer struct {
 	MQClient      *clients.RabbitMQ
@@ -29,7 +29,7 @@ func NewEmailConsumer(id string) *EmailConsumer {
 }
 
 func (c *EmailConsumer) Start() {
-	c.MQClient.ReceiveTopic(common.EmailMessageQueueName, c.OnMessage)
+	c.MQClient.ReceiveTopic(appConfig.EmailMessageQueueName, c.OnMessage)
 }
 
 func (c *EmailConsumer) OnMessage(message []byte) error {
@@ -42,6 +42,6 @@ func (c *EmailConsumer) OnMessage(message []byte) error {
 		logger.Println("反序列化失败", err)
 	}
 	logger.Println("email consumer get message from rabbitmq ->", EmailNotifyMessage)
-	tools.SendEmail(EmailNotifyMessage.Receiver, EmailNotifyMessage.Subject, EmailNotifyMessage.Content, EmailNotifyMessage.Sender, EmailNotifyMessage.PWD)
+	err = tools.SendEmail(EmailNotifyMessage.Receiver, EmailNotifyMessage.Subject, EmailNotifyMessage.Content, EmailNotifyMessage.Sender, EmailNotifyMessage.PWD)
 	return err
 }

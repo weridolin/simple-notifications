@@ -7,8 +7,10 @@ import (
 	"time"
 
 	"github.com/robfig/cron/v3"
+	config "github.com/weridolin/simple-vedio-notifications/configs"
 	"github.com/weridolin/simple-vedio-notifications/consumers"
 	"github.com/weridolin/simple-vedio-notifications/database"
+	"github.com/weridolin/simple-vedio-notifications/schedulers"
 	"github.com/weridolin/simple-vedio-notifications/tools"
 	// httpConsumers "github.com/weridolin/simple-vedio-notifications/servers/http/consumers"
 )
@@ -58,27 +60,24 @@ func Setup() {
 
 func main() {
 	Setup()
-	// config := config.GetAppConfig()
+
+	sync := schedulers.NewSynchronizer()
+	go sync.Start()
+	config := config.GetAppConfig()
 	// ctx := context.WithValue(context.Background(), "tp", schedulers.NewTickerPool(config.DefaultMaxTickerCount))
 	// uuid := tools.GetUUID()
 	// manager := schedulers.NewSchedulerManager(ctx, uuid)
-	// for i := 0; i < config.EmailConsumerCount; i++ {
-	emailConsumer := consumers.NewEmailConsumer(tools.GetUUID())
-	emailConsumer.MQClient.SetDLX()
-	go emailConsumer.Start()
-	// }
+	for i := 0; i < config.EmailConsumerCount; i++ {
+		emailConsumer := consumers.NewEmailConsumer(tools.GetUUID())
+		emailConsumer.MQClient.SetDLX()
+		go emailConsumer.Start()
+	}
 
-	// sync := schedulers.NewSynchronizer()
-	// go sync.Start()
-	// task := bilibili.NewBiliBiliTask(
-	// 	tools.Period{Cron: tools.Minutely},
-	// 	map[string]interface{}{"盗月社食遇记": 99157282},
-	// 	0,
-	// )
-	// scheduler := schedulers.NewScheduler(tools.Period{Cron: tools.Minutely}, "bilibili", 0, 1)
-	// scheduler.AddTask(task)
-	// manager.AddScheduler(scheduler)
-	// manager.StartAll()
+	// rabbitMq := clients.NewRabbitMQ(tools.GetUUID())
+	// rabbitMq.CreateExchange(common.EmailExchangeName, "topic").
+	// 	CreateQueue(common.EmailMessageQueueName, true).
+	// 	ExchangeBindQueue(common.EmailMessageQueueName, "*.email.*", common.EmailExchangeName)
+
 	// http.Start()
 	time.Sleep(time.Minute * 10)
 }

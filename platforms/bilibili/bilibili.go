@@ -22,6 +22,7 @@ import (
 )
 
 var logger = config.GetLogger()
+var appConfig = config.GetAppConfig()
 
 const (
 	domain          = "live.bilibili.com"
@@ -113,6 +114,7 @@ func NewBiliBiliTask(period tools.Period, ups database.Ups, dbindex uint, name, 
 		Ups:            ups,
 	}
 	t.CallBacks = append(t.CallBacks, t.UpdateResult, t.PublicEmailNotifyMessage)
+
 	return t
 }
 
@@ -136,9 +138,9 @@ func (t *BiliBiliTask) PublicEmailNotifyMessage() {
 		return
 	} else if len(t.EmailNotifiers) > 0 {
 		rabbitMq := clients.NewRabbitMQ(tools.GetUUID())
-		rabbitMq.CreateExchange(common.EmailExchangeName, "topic").
-			CreateQueue(common.EmailMessageQueueName, true).
-			ExchangeBindQueue(common.EmailMessageQueueName, "*.email.*", common.EmailExchangeName)
+		// rabbitMq.CreateExchange(common.EmailExchangeName, "topic").
+		// 	CreateQueue(common.EmailMessageQueueName, true).
+		// 	ExchangeBindQueue(common.EmailMessageQueueName, "*.email.*", common.EmailExchangeName)
 		for _, emailNotifier := range t.EmailNotifiers {
 			// content := consumers.RenderEmailContentTemplate("bilibili",t.Ups)
 			message, err := json.Marshal(
@@ -153,7 +155,7 @@ func (t *BiliBiliTask) PublicEmailNotifyMessage() {
 				logger.Println("json marshal error", err)
 				return
 			}
-			rabbitMq.Publish(common.EmailExchangeName, "bilibili.email.notify", message)
+			rabbitMq.Publish(appConfig.EmailMessageExchangeName, "bilibili.email.notify", message)
 			logger.Println("send message to rabbitmq")
 		}
 	}
@@ -187,7 +189,7 @@ func (t *BiliBiliTask) Run() {
 		req.Header.Add("sec-fetch-site", "none")
 		req.Header.Add("upgrade-insecure-requests", "1")
 		req.Header.Add("User-Agent", GetRandomUserAgent())
-		req.Header.Add("Cookie", "innersign=0; buvid3=324A040F-38FD-78B7-0BB2-687CB2E5A03D22670infoc; i-wanna-go-back=-1; b_ut=7; b_lsid=5E951F7D_188148AD1D2; bsource=search_bing; _uuid=B10627D6A-C9D6-E9106-3B6E-24108AB6C4B7522042infoc; FEED_LIVE_VERSION=V8; header_theme_version=undefined; buvid_fp=60df8955b90249b31ca1d24a40946184; home_feed_column=5; browser_resolution=1856-903; buvid4=3FDB890D-946E-B821-674C-03925B57884F24094-023051317-VheKLZviuDHxVPxcieCAUg==; b_nut=1683971823; nostalgia_conf=-1; PVID=3")
+		// req.Header.Add("Cookie", "innersign=0; buvid3=324A040F-38FD-78B7-0BB2-687CB2E5A03D22670infoc; i-wanna-go-back=-1; b_ut=7; b_lsid=5E951F7D_188148AD1D2; bsource=search_bing; _uuid=B10627D6A-C9D6-E9106-3B6E-24108AB6C4B7522042infoc; FEED_LIVE_VERSION=V8; header_theme_version=undefined; buvid_fp=60df8955b90249b31ca1d24a40946184; home_feed_column=5; browser_resolution=1856-903; buvid4=3FDB890D-946E-B821-674C-03925B57884F24094-023051317-VheKLZviuDHxVPxcieCAUg==; b_nut=1683971823; nostalgia_conf=-1; PVID=3")
 		resp, http_err := client.Do(req)
 		logger.Println("rep HEADER = ", req.Header)
 		if http_err != nil {
