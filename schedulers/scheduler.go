@@ -38,13 +38,6 @@ func (s *Scheduler) Start() {
 		i = t.(common.ITask)
 		i.Run()
 	}
-	// switch s.PlatForm {
-	// case "bilibili":
-	// 	t = &bilibili.BiliBiliTask{Period: s.Period, Ups: s.Ups}
-	// case "youtube":
-	// 	fmt.Println("start youtube scheduler...", s)
-	// }
-	// t.Run()
 }
 
 func (s *Scheduler) Stop() {

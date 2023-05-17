@@ -13,8 +13,11 @@
 package schedulers
 
 import (
+	"context"
+
 	"github.com/robfig/cron/v3"
 	config "github.com/weridolin/simple-vedio-notifications/configs"
+	"github.com/weridolin/simple-vedio-notifications/storage"
 	"github.com/weridolin/simple-vedio-notifications/tools"
 )
 
@@ -84,9 +87,11 @@ type TickerPool struct {
 	RunningScheduler []*Scheduler
 	WaitingScheduler []*Scheduler
 	ID               string
+	Storage          storage.StorageInterface
 }
 
 func NewTickerPool(maxTickerCount int) *TickerPool {
+	ctx := context.TODO()
 	return &TickerPool{
 		maxTickerCount,
 		make(map[int]*Scheduler),
@@ -96,6 +101,7 @@ func NewTickerPool(maxTickerCount int) *TickerPool {
 		make([]*Scheduler, 0),
 		make([]*Scheduler, 0),
 		tools.GetUUID(),
+		storage.NewStorage(ctx),
 	}
 }
 

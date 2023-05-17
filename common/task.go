@@ -1,12 +1,17 @@
 package common
 
-import "errors"
+import (
+	"errors"
+
+	"github.com/weridolin/simple-vedio-notifications/storage"
+)
 
 type Meta struct {
 	DBIndex     uint
 	Name        string
 	Description string
-	CallBacks   []func() //每次运行回调函数列表
+	CallBacks   []func()                 //每次运行回调函数列表
+	Storage     storage.StorageInterface //结果储存
 }
 
 func (t *Meta) Run() error {

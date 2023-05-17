@@ -18,6 +18,7 @@ import (
 	"github.com/weridolin/simple-vedio-notifications/common"
 	config "github.com/weridolin/simple-vedio-notifications/configs"
 	"github.com/weridolin/simple-vedio-notifications/database"
+	"github.com/weridolin/simple-vedio-notifications/storage"
 	tools "github.com/weridolin/simple-vedio-notifications/tools"
 )
 
@@ -101,13 +102,14 @@ type BiliBiliTask struct {
 }
 
 func NewBiliBiliTask(period tools.Period, ups database.Ups, dbindex uint, name, description string,
-	emailNotifiers []*database.EmailNotifier) *BiliBiliTask {
+	emailNotifiers []*database.EmailNotifier, storage storage.StorageInterface) *BiliBiliTask {
 	t := &BiliBiliTask{
 		Meta: common.Meta{
 			DBIndex:     dbindex,
 			CallBacks:   make([]func(), 0),
 			Name:        name,
 			Description: description,
+			Storage:     storage,
 		},
 		EmailNotifiers: emailNotifiers,
 		Period:         period,
@@ -123,6 +125,7 @@ func (t *BiliBiliTask) UpdateResult() {
 		logger.Println(t.DBIndex, " run error -> ", t.Error)
 
 	}
+	t.Storage.Save(t.Result)
 	logger.Println(t.DBIndex, " update result")
 }
 
@@ -297,9 +300,4 @@ func (t *BiliBiliTask) RenderEmailNotifyTemplate() (string, error) {
 func GetRandomUserAgent() string {
 	//随机获取一个列表里面的元素
 	return BrowserUserAgentPool[rand.Intn(len(BrowserUserAgentPool))]
-}
-
-func UpdateResultToRedis() {
-	//更新结果到redis
-	logger.Println("UpdateResultToRedis")
 }

@@ -66,11 +66,6 @@ func main() {
 	// 	go emailConsumer.Start()
 	// }
 
-	// rabbitMq := clients.NewRabbitMQ(tools.GetUUID())
-	// rabbitMq.CreateExchange(common.EmailExchangeName, "topic").
-	// 	CreateQueue(common.EmailMessageQueueName, true).
-	// 	ExchangeBindQueue(common.EmailMessageQueueName, "*.email.*", common.EmailExchangeName)
-
 	// http.Start()
 	time.Sleep(time.Minute * 10)
 }

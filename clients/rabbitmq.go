@@ -17,16 +17,9 @@ var appConfig = config.GetAppConfig()
 type RabbitMQ struct {
 	conn    *amqp.Connection
 	channel *amqp.Channel
-	// //队列名称
-	// QueueName string
-	// //交换机名称
-	// Exchange string
-	// //bind Key 名称
-	// Key string
 	// //连接信息
 	Mqurl string
-	// // 类型
-	// Type_ string
+	// 实例唯一ID
 	ID string
 }
 
@@ -45,21 +38,6 @@ func NewRabbitMQ(id string) *RabbitMQ {
 
 	return instance
 }
-
-// func (r *RabbitMQ) CreateDl() {
-
-// 	//声明死信交换器
-// 	var dlxExchangeName =
-// 	r.CreateExchange(dlxExchangeName, "direct")
-// 	//声明队列
-// 	_, err := r.channel.QueueDeclare("email.dlx.queue", true, false, false, false, nil)
-// 	if err != nil {
-// 		fmt.Println("set email dlx queue  err :", err)
-// 		return
-// 	}
-// 	r.ExchangeBindQueue("email.dlx.queue", "email.dlx.queue", dlxExchangeName)
-
-// }
 
 func (r *RabbitMQ) CreateExchange(exchange, t string) *RabbitMQ {
 	err := r.channel.ExchangeDeclare(
@@ -168,7 +146,7 @@ func (r *RabbitMQ) ReceiveTopic(queue string, callback func(msg []byte) error) {
 				logger.Println("consumer email notify message error ", err)
 				d.Reject(false) // 拒绝消息，requeue为true会重新放回队列，否则放回死信队列
 			} else {
-				d.Ack(false) // false 确认当前消息   true确认所有未确认的消息  未确认的消息状态未un ack，等到客户端重新连接后会变为ready
+				d.Ack(false) // false确认当前消息,true确认所有未确认的消息,未确认的消息状态未un ack，等到客户端重新连接后会变为ready,超时的话会进入死信队列
 			}
 		}
 	}()

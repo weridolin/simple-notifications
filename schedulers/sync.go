@@ -24,6 +24,7 @@ type Synchronizer struct {
 	MsgChannel       chan string
 	StopSleepChannel chan bool
 	SchedulerManager *SchedulerManager
+	Ctx              context.Context
 }
 
 func NewSynchronizer() *Synchronizer {
@@ -34,6 +35,7 @@ func NewSynchronizer() *Synchronizer {
 	return &Synchronizer{
 		MaxInterval:      3000,
 		SchedulerManager: manager,
+		Ctx:              ctx,
 	}
 }
 
@@ -76,7 +78,8 @@ func (s *Synchronizer) Start() {
 					var task interface{}
 					switch model.Platform {
 					case "bilibili":
-						task = bilibili.NewBiliBiliTask(tools.Period{Cron: record.Period}, model.Ups, model.ID, model.Name, model.Description, model.EmailNotifiers)
+						task = bilibili.NewBiliBiliTask(tools.Period{Cron: record.Period}, model.Ups, model.ID, model.Name, model.Description,
+							model.EmailNotifiers, s.Ctx.Value("tp").(*TickerPool).Storage)
 					}
 					if task != nil {
 						scheduler.Tasks = append(scheduler.Tasks, task)
