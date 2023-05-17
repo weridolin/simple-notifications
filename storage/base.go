@@ -10,7 +10,7 @@ var appConfig = config.GetAppConfig()
 var logger = config.GetLogger()
 
 type StorageInterface interface {
-	Save(info interface{}) error
+	Save(info []interface{}) error
 	Remove() error
 }
 

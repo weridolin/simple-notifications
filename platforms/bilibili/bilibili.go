@@ -125,7 +125,21 @@ func (t *BiliBiliTask) UpdateResult() {
 		logger.Println(t.DBIndex, " run error -> ", t.Error)
 
 	}
-	t.Storage.Save(t.Result)
+	records := make([]interface{}, 0)
+	//拆分记录
+	for up_name, video_info := range t.Result.(map[string][]VideoInfo) {
+		for _, info := range video_info {
+			records = append(records, struct {
+				UpName    string
+				VideoInfo VideoInfo
+			}{
+				UpName:    up_name,
+				VideoInfo: info,
+			})
+		}
+	}
+
+	t.Storage.Save(records)
 	logger.Println(t.DBIndex, " update result")
 }
 
