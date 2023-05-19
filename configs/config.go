@@ -24,7 +24,10 @@ type Config struct {
 	EmailMessageExchangeName    string // EmailConsumer消息交换机名称
 	EmailMessageQueueName       string // EmailConsumer消息队列名称
 	MongoDbUri                  string // MongoDB连接地址
+	MongoDbName                 string // SimpleNotification连接地址
 	StorageType                 string // 存储类型
+	StorageFileRelativePath     string // 结果存储文件路径
+
 }
 
 func StrToInt(s string) int {
@@ -53,7 +56,9 @@ func GetAppConfig() *Config {
 			EmailMessageExchangeName:       os.Getenv("EmailMessageExchangeName"),         // EmailConsumer消息交换机名称
 			EmailMessageQueueName:          os.Getenv("EmailMessageQueueName"),            // EmailConsumer消息队列名称
 			MongoDbUri:                     os.Getenv("MongoDbUri"),                       // MongoDB连接地址
+			MongoDbName:                    os.Getenv("MongoDbName"),                      // SimpleNotification连接地址
 			StorageType:                    os.Getenv("StorageType"),                      // 存储类型
+			StorageFileRelativePath:        os.Getenv("StorageFileRelativePath"),          // 结果存储文件路径
 		}
 	}
 	return ConfigInstance

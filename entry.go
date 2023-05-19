@@ -57,7 +57,10 @@ func Setup() {
 
 func main() {
 	Setup()
-
+	// ctx := context.Background()
+	// storage := storage.NewStorage(ctx)
+	// var info = []interface{}{{"name": "11"}}
+	// storage.Save(info)
 	sync := schedulers.NewSynchronizer()
 	go sync.Start()
 	// config := config.GetAppConfig()

@@ -17,7 +17,7 @@ type MongoBD struct {
 }
 
 func NewMongoDB(uri string, ctx context.Context) *MongoBD {
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(uri))
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(uri).SetMaxPoolSize(5))
 	if err != nil {
 		logger.Panicln("connect mongodb failed:", err)
 	}
@@ -28,12 +28,6 @@ func NewMongoDB(uri string, ctx context.Context) *MongoBD {
 	}
 }
 
-// func (m *MongoBD) Save(info interface{}) error {
-// 	collection := m.Client.Database("test").Collection("test")
-// 	_, err := collection.InsertOne(*m.Ctx, info)
-// 	if err != nil {
-// 		logger.Println("insert error -> ", err)
-// 		return err
-// 	}
-// 	return nil
+// func (m *MongoBD) CreateIndex(info interface{}) error {
+// 	...
 // }

@@ -138,9 +138,9 @@ func (t *BiliBiliTask) UpdateResult() {
 			})
 		}
 	}
+	logger.Println(t.DBIndex, " update result", t.Storage)
 
 	t.Storage.Save(records)
-	logger.Println(t.DBIndex, " update result")
 }
 
 func (t *BiliBiliTask) PublicEmailNotifyMessage() {
@@ -149,17 +149,13 @@ func (t *BiliBiliTask) PublicEmailNotifyMessage() {
 		logger.Println("render email notify template error -> ", err)
 		return
 	}
-	logger.Println("public email notify message", content, t.EmailNotifiers, t.Error)
+	// logger.Println("public email notify message", content, t.EmailNotifiers, t.Error)
 	if t.Error != nil {
 		logger.Println("error -> ", t.Error)
 		return
 	} else if len(t.EmailNotifiers) > 0 {
 		rabbitMq := clients.NewRabbitMQ(tools.GetUUID())
-		// rabbitMq.CreateExchange(common.EmailExchangeName, "topic").
-		// 	CreateQueue(common.EmailMessageQueueName, true).
-		// 	ExchangeBindQueue(common.EmailMessageQueueName, "*.email.*", common.EmailExchangeName)
 		for _, emailNotifier := range t.EmailNotifiers {
-			// content := consumers.RenderEmailContentTemplate("bilibili",t.Ups)
 			message, err := json.Marshal(
 				map[string]interface{}{
 					"sender":   emailNotifier.Sender,

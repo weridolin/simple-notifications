@@ -33,9 +33,8 @@ func (c *EmailConsumer) Start() {
 }
 
 func (c *EmailConsumer) OnMessage(message []byte) error {
-	logger.Println("email consumer-> ", c.MQClient.ID, " get message from rabbitmq ->", string(message))
+	logger.Println("email consumer-> ", c.MQClient.ID, " get message from rabbitmq ->")
 	var err error
-	// logger.Println("email consumer get message from rabbitmq ->", string(message))
 	EmailNotifyMessage := EmailNotifyMessage{Subject: "bilibili up 订阅结果通知"}
 	err = json.Unmarshal(message, &EmailNotifyMessage)
 	if err != nil {
