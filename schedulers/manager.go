@@ -46,7 +46,8 @@ func (sm *SchedulerManager) AddScheduler(s *Scheduler, startAtOnce bool) (*Sched
 	}
 
 	if startAtOnce {
-		tp := sm.Ctx.Value("tp").(*TickerPool)
+		// var tp *TickerPool
+		tp := sm.Ctx.Value("tp")
 		sm.lock.RLock()
 		defer sm.lock.RUnlock()
 		tp.SubmitScheduler(s)
