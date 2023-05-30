@@ -1,0 +1,15 @@
+Name: users
+Host: 0.0.0.0
+Port: 8888
+JwtAuth:
+  AccessSecret: dksadkladlakdlkajdlajldj
+  AccessExpire: 36000
+DBUri: "root:werido@tcp(8.131.78.84:3306)/simple_notification?charset=utf8mb4&parseTime=true"
+Log:
+  Level: debug
+  # Path: /var/log/users.log
+  # MaxSize: 100
+  # MaxBackups: 10
+  # MaxAge: 30
+  ServiceName: users-rest-api
+  MODE: console
