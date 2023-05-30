@@ -28,20 +28,13 @@
     - [x] bilibili up主投稿内容通知
 
 
-#### 运行部分大致逻辑
+#### 整体架构图
+![tu](/docs/images/整体架构.png)
 
-```mermaid
-graph TB
 
-    A(SchedulerManager) ----> B[bilibili]
-    A(SchedulerManager) ----> C[youtube]
-    A(SchedulerManager) ----> F[...]
-    B[bilibili] --> D[scheduler1--<6:00>UpName1,UpName2] -->     X[tickerPool:scheduler执行池]
-    B[bilibili] --> E[scheduler2--<6:00>UpName3,UpName3] -->     X[tickerPool:scheduler执行池]
-    B[bilibili] --> h[...] -->     X[tickerPool:scheduler执行池]
-    X[tickerPool:scheduler执行池] --> Y[执行完毕,有新消息?] --> Z[MQ/REDIS]
-    Z[MQ/REDIS] --> M[邮件通知 consumer]
-    Z[MQ/REDIS] --> n[转发 consumer]     
-    Z[MQ/REDIS] --> l[上传 consumer]
-    Z[MQ/REDIS] --> ...
-```
+#### 技术栈
+
+- 微服务框架:`go-zero`
+- 数据库:`mysql` `mongodb`
+- 中间件:`rabbitmq` `redis`
+- orm:`gorm`
