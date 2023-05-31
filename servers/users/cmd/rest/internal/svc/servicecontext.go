@@ -2,6 +2,7 @@ package svc
 
 import (
 	"github.com/weridolin/simple-vedio-notifications/servers/users/cmd/rest/internal/config"
+
 	"github.com/weridolin/simple-vedio-notifications/servers/users/models"
 	"github.com/zeromicro/go-zero/core/logx"
 	"gorm.io/driver/mysql"
@@ -16,7 +17,7 @@ type ServiceContext struct {
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
-	logx.SetUp(c.Log.LogConf)
+	logx.SetUp(c.Logger.LogConf)
 	db, err := gorm.Open(mysql.Open(c.DBUri), &gorm.Config{
 		NamingStrategy: schema.NamingStrategy{
 			TablePrefix:   "auth_", // 表名前缀，`User` 的表名应该是 `t_users`

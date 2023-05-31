@@ -3,6 +3,8 @@
         "amqp",
         "bilibili",
         "dbindex",
+        "httpx",
+        "logx",
         "mapstructure",
         "rabbitmq"
     ],

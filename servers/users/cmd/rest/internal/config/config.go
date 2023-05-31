@@ -11,8 +11,8 @@ type Config struct {
 		AccessSecret string
 		AccessExpire int64
 	}
-	DBUri string
-	Log   struct {
+	DBUri  string
+	Logger struct {
 		logx.LogConf
 	}
 }

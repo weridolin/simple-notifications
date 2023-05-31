@@ -5,6 +5,7 @@ import (
 
 	"github.com/weridolin/simple-vedio-notifications/servers/users/cmd/rest/internal/svc"
 	"github.com/weridolin/simple-vedio-notifications/servers/users/cmd/rest/internal/types"
+	"github.com/weridolin/simple-vedio-notifications/tools"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -23,8 +24,22 @@ func NewUserInfoDetailLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Us
 	}
 }
 
-func (l *UserInfoDetailLogic) UserInfoDetail() (resp *types.UserInfo, err error) {
-	// todo: add your logic here and delete this line
-
-	return
+func (l *UserInfoDetailLogic) UserInfoDetail() (resp *types.UpdateUserInfoResp, err error) {
+	userID := l.ctx.Value("userId")
+	user, err := l.svcCtx.UserModel.QueryUser(map[string]interface{}{"id": userID}, l.svcCtx.DB)
+	if err != nil {
+		return &types.UpdateUserInfoResp{
+			BaseResponse: types.BaseResponse{
+				Code: tools.ModelRecordNotFound.Code,
+				Msg:  "用户不存在",
+			},
+		}, nil
+	}
+	return &types.UpdateUserInfoResp{
+		BaseResponse: types.BaseResponse{
+			Code: 0,
+			Msg:  "查询成功",
+		},
+		Data: *types.UserInfo{}.FromUserModel(user),
+	}, nil
 }

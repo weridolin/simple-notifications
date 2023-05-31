@@ -1,11 +1,11 @@
 Name: users
 Host: 0.0.0.0
-Port: 8888
+Port: 8080
 JwtAuth:
-  AccessSecret: dksadkladlakdlkajdlajldj
+  AccessSecret: ae0536f9-6450-4606-8e13-5a19ed505da0
   AccessExpire: 36000
 DBUri: "root:werido@tcp(8.131.78.84:3306)/simple_notification?charset=utf8mb4&parseTime=true"
-Log:
+Logger:
   Level: debug
   # Path: /var/log/users.log
   # MaxSize: 100

@@ -15,7 +15,7 @@ import (
 //============================> users api-v1 <============================
 //no need login
 @server(
-	prefix: users/v1
+	prefix: api/v1
 	group: user
 )
 service users {
@@ -26,12 +26,12 @@ service users {
 	
 	@doc "login"
 	@handler login
-	post /login (LoginReq) returns (LoginResp)
+	get /login (LoginReq) returns (LoginResp)
 }
 
 //need login
 @server(
-	prefix: users/v1
+	prefix: api/v1
 	group: user
 	jwt: JwtAuth
 )
@@ -39,11 +39,11 @@ service users {
 	
 	@doc "get user info"
 	@handler userInfoDetail
-	get /user/:id  returns (UserInfo)
+	get /user  returns (UpdateUserInfoResp)
 	
 	@doc "update user info "
 	@handler updateUserInfo
-	put /user/:id (UserInfo) returns (UpdateUserInfoResp)
+	put /user (UserInfo) returns (UpdateUserInfoResp)
 	
 	@doc "logout"
 	@handler logout
