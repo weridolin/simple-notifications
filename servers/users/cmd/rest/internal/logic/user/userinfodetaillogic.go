@@ -25,7 +25,7 @@ func NewUserInfoDetailLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Us
 }
 
 func (l *UserInfoDetailLogic) UserInfoDetail() (resp *types.UpdateUserInfoResp, err error) {
-	userID := l.ctx.Value("userId")
+	userID := l.ctx.Value("id")
 	user, err := l.svcCtx.UserModel.QueryUser(map[string]interface{}{"id": userID}, l.svcCtx.DB)
 	if err != nil {
 		return &types.UpdateUserInfoResp{
@@ -35,6 +35,7 @@ func (l *UserInfoDetailLogic) UserInfoDetail() (resp *types.UpdateUserInfoResp, 
 			},
 		}, nil
 	}
+	// fmt.Println("user info detail userID -->", userID, user, err)
 	return &types.UpdateUserInfoResp{
 		BaseResponse: types.BaseResponse{
 			Code: 0,

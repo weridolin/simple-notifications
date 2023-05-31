@@ -11,8 +11,8 @@ type UserInfo struct {
 	Email        string   `json:"email"`
 	Phone        string   `json:"phone"`
 	Avatar       string   `json:"avatar"`
-	Role         pq.StringArray `json:"role"`
-	IsSuperAdmin bool     `json:"is_super_admin"`
+	Role         pq.StringArray `json:"role,optional"`
+	IsSuperAdmin bool     `json:"is_super_admin,optional"`
 	Age          int      `json:"age"`
 	Gender       int8     `json:"gender"`
 }

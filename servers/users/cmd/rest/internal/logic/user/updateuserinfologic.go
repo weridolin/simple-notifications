@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/weridolin/simple-vedio-notifications/servers/users/cmd/rest/internal/svc"
 	"github.com/weridolin/simple-vedio-notifications/servers/users/cmd/rest/internal/types"
@@ -25,7 +26,8 @@ func NewUpdateUserInfoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Up
 }
 
 func (l *UpdateUserInfoLogic) UpdateUserInfo(req *types.UpdateUserInfoRep) (resp *types.UpdateUserInfoResp, err error) {
-	userID := l.ctx.Value("userId")
+	userID := l.ctx.Value("id")
+	fmt.Println("update user info userID -->", userID)
 	user, err := l.svcCtx.UserModel.QueryUser(map[string]interface{}{"id": userID}, l.svcCtx.DB)
 	if err != nil {
 		return &types.UpdateUserInfoResp{

@@ -57,7 +57,7 @@ func NewUserModel() UserModel {
 
 func (m DefaultUserModel) QueryUser(condition interface{}, DB *gorm.DB) (User, error) {
 	var user User
-	err := DB.Where(condition).Find(&user).Error
+	err := DB.Where(condition).First(&user).Error
 	return user, err
 }
 
