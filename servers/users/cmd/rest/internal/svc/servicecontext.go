@@ -20,8 +20,8 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	logx.SetUp(c.Logger.LogConf)
 	db, err := gorm.Open(mysql.Open(c.DBUri), &gorm.Config{
 		NamingStrategy: schema.NamingStrategy{
-			TablePrefix:   "auth_", // 表名前缀，`User` 的表名应该是 `t_users`
-			SingularTable: true,    // 使用单数表名，启用该选项，此时，`User` 的表名应该是 `t_user`
+			// TablePrefix:   "auth_", // 表名前缀，`User` 的表名应该是 `t_users`
+			SingularTable: true, // 使用单数表名，启用该选项，此时，`User` 的表名应该是 `t_user`
 		},
 	})
 	if err != nil {
@@ -33,6 +33,6 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	return &ServiceContext{
 		Config:    c,
 		DB:        db,
-		UserModel: models.NewUserModel(),
+		UserModel: models.NewUserModel("user"),
 	}
 }

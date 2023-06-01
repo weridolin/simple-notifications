@@ -10,7 +10,7 @@ import (
 
 type UserModel interface {
 	Create(username, email, password string, DB *gorm.DB) (*User, error)
-	Delete(DB *gorm.DB) error
+	Delete(id int, DB *gorm.DB) error
 	QueryUser(condition interface{}, DB *gorm.DB) (User, error)
 	Update(u User, DB *gorm.DB) error
 	CheckPWd(count, password string, DB *gorm.DB) (*User, error)
@@ -31,16 +31,22 @@ type User struct {
 }
 
 type DefaultUserModel struct {
-	Table *User `gorm:"-" json:"-" binding:"-"`
+	Table string `gorm:"-" json:"-" binding:"-"`
+}
+
+func NewUserModel(table string) UserModel {
+	return DefaultUserModel{
+		Table: table,
+	}
 }
 
 func (u DefaultUserModel) Create(username, email, password string, DB *gorm.DB) (*User, error) {
-	var user = User{
+	user := User{
 		Username: username,
 		Email:    email,
 		Password: tools.GetMD5Hash(password),
 	}
-	DB.Where("username = ? or email = ? ", username, email).First(&user)
+	DB.Table(u.Table).Where("username = ? or email = ? ", username, email).First(&user)
 	if user.ID != 0 {
 		return nil, errors.New("用户名或邮箱已存在")
 	} else {
@@ -49,26 +55,20 @@ func (u DefaultUserModel) Create(username, email, password string, DB *gorm.DB) 
 	}
 }
 
-func NewUserModel() UserModel {
-	return DefaultUserModel{
-		Table: &User{},
-	}
-}
-
 func (m DefaultUserModel) QueryUser(condition interface{}, DB *gorm.DB) (User, error) {
 	var user User
-	err := DB.Where(condition).First(&user).Error
+	err := DB.Table(m.Table).Where(condition).First(&user).Error
 	return user, err
 }
 
-func (m DefaultUserModel) Delete(DB *gorm.DB) error {
-	DB.Where("id = ?", m.Table.ID).Delete(&m)
-	return nil
+func (m DefaultUserModel) Delete(id int, DB *gorm.DB) error {
+	err := DB.Table(m.Table).Delete(map[string]interface{}{"id": id}).Error
+	return err
 }
 
 func (m DefaultUserModel) Update(u User, DB *gorm.DB) error {
-	DB.Model(&u).Updates(u)
-	return nil
+	err := DB.Table(m.Table).Updates(u).Error
+	return err
 }
 
 func (m DefaultUserModel) CheckPWd(count, password string, DB *gorm.DB) (*User, error) {
