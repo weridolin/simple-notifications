@@ -8,11 +8,12 @@ import (
 
 type (
 	SchedulerModel interface {
-		Create(user user.User, period string, platform, name, description string, DB *gorm.DB) error
+		Create(userID int, period string, platform, name, description string, DB *gorm.DB) (*Scheduler, error)
 		Update(data interface{}, DB *gorm.DB) error
 		Delete(id int, DB *gorm.DB) error
-		Query(condition interface{}, DB *gorm.DB) (Scheduler, error)
+		Query(condition interface{}, DB *gorm.DB) (*Scheduler, error)
 		BindTask(schedulerId uint, taskIds []uint, DB *gorm.DB) error
+		FullQuery(condition interface{}, page, size int, DB *gorm.DB) ([]*Scheduler, error)
 	}
 
 	Scheduler struct {
@@ -43,9 +44,9 @@ func NewSchedulerModel(table string) SchedulerModel {
 	}
 }
 
-func (s *DefaultSchedulerModel) Create(user user.User, period string, platform, name, description string, DB *gorm.DB) error {
-	scheduler := Scheduler{
-		UserID:      user.ID,
+func (s *DefaultSchedulerModel) Create(userID int, period string, platform, name, description string, DB *gorm.DB) (*Scheduler, error) {
+	scheduler := &Scheduler{
+		UserID:      uint(userID),
 		Period:      period,
 		Type:        "custom",
 		Platform:    platform,
@@ -55,9 +56,9 @@ func (s *DefaultSchedulerModel) Create(user user.User, period string, platform, 
 	_, e := s.Query(scheduler, DB)
 	if e != nil {
 		err := DB.Table(s.Table).Create(&scheduler).Error
-		return err
+		return scheduler, err
 	}
-	return tools.SchedulerIsExistError
+	return nil, tools.SchedulerIsExistError
 }
 
 func (s *DefaultSchedulerModel) Update(data interface{}, DB *gorm.DB) error {
@@ -66,19 +67,21 @@ func (s *DefaultSchedulerModel) Update(data interface{}, DB *gorm.DB) error {
 }
 
 func (s *DefaultSchedulerModel) Delete(id int, DB *gorm.DB) error {
-	err := DB.Table(s.Table).Delete(map[string]interface{}{"id": id}).Error
+	err := DB.Table(s.Table).Delete(s.Table, map[string]interface{}{"id": id}).Error
 	return err
 }
 
-func (s *DefaultSchedulerModel) Query(condition interface{}, DB *gorm.DB) (Scheduler, error) {
-	var scheduler Scheduler
+func (s *DefaultSchedulerModel) Query(condition interface{}, DB *gorm.DB) (*Scheduler, error) {
+	var scheduler *Scheduler
 	err := DB.Table(s.Table).Where(condition).First(&scheduler).Error
 	return scheduler, err
 }
 
 func (s *DefaultSchedulerModel) FullQuery(condition interface{}, page, size int, DB *gorm.DB) ([]*Scheduler, error) {
 	var schedulers []*Scheduler
-	err := DB.Table(s.Table).Preload("Tasks").Preload("Tasks.EmailNotifiers").Where(condition).Offset((page - 1) * size).Limit(size).Find(&schedulers).Error
+	// err := DB.Table(s.Table).Preload("Tasks").Preload("Tasks.EmailNotifiers").Where(condition).Offset((page - 1) * size).Limit(size).Find(&schedulers).Error
+	err := DB.Table(s.Table).Preload("Tasks").Where(condition).Offset((page - 1) * size).Limit(size).Find(&schedulers).Error
+
 	return schedulers, err
 }
 

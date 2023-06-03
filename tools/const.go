@@ -20,4 +20,24 @@ var (
 		Msg:  "record already exist",
 		Code: 10003,
 	}
+
+	ModelRecordCreatedError = CustomError{
+		Msg:  "record created error",
+		Code: 10004,
+	}
+
+	ModelRecordUpdatedError = CustomError{
+		Msg:  "record updated error",
+		Code: 10005,
+	}
+
+	ModelQueryError = CustomError{
+		Msg:  "record query error",
+		Code: 10006,
+	}
+
+	InternalError = CustomError{
+		Msg:  "internal error",
+		Code: 10007,
+	}
 )

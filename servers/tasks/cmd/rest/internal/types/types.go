@@ -17,15 +17,15 @@ type Task struct {
 	User        UserInfo               `json:"user"`
 	PlatForm    string                 `json:"platform"`
 	Ups         map[string]interface{} `json:"ups" desc:"up主"`
-	Schedulers  []Scheduler            `json:"schedulers"`
+	Schedulers  []*Scheduler            `json:"schedulers"`
 	Name        string                 `json:"name"`
 	Description string                 `json:"description"`
 }
 
 type CreateTaskReq struct {
 	Platform    string                 `json:"platform" desc:"平台"`
-	Ups         map[string]interface{} `json:"ups" desc:"up主"`
-	Schedulers  []int                  `json:"schedulers" desc:"绑定的运行计划列表"`
+	Ups         map[string]interface{}  `json:"ups" desc:"up主"`
+	Schedulers  []int                  `json:"schedulers,optional" desc:"绑定的运行计划列表"`
 	Name        string                 `json:"name" desc:"任务名称"`
 	Description string                 `json:"description" desc:"任务描述"`
 }
@@ -37,6 +37,7 @@ type CreateTaskResp struct {
 
 type UpdateTaskReq struct {
 	CreateTaskReq
+	ID int `path:"id"`
 }
 
 type UpdateTaskResp struct {
@@ -44,7 +45,7 @@ type UpdateTaskResp struct {
 }
 
 type DeleteTaskReq struct {
-	ID int `json:"id"`
+	ID int `path:"id"`
 }
 
 type DeleteTaskResp struct {
@@ -58,12 +59,12 @@ type QueryTaskReq struct {
 
 type QueryTaskResp struct {
 	BaseResponse
-	Data []Task `json:"data"`
+	Data []*Task `json:"data"`
 }
 
 type BindSchedulerReq struct {
-	SchedulerID int   `json:"scheduler_id"`
-	TaskID      []int `json:"task_id"`
+	SchedulerID uint   `json:"scheduler_id"`
+	TaskID      []uint `json:"task_id"`
 }
 
 type BindSchedulerResp struct {
@@ -76,7 +77,7 @@ type Scheduler struct {
 	Period      string   `json:"period"`
 	Active      bool     `json:"active"`
 	User        UserInfo `json:"user"`
-	Tasks       []Task   `json:"tasks"`
+	Tasks       []*Task   `json:"tasks"`
 	Name        string   `json:"name"`
 	Description string   `json:"description"`
 }
@@ -90,11 +91,12 @@ type CreateSchedulerReq struct {
 
 type CreateSchedulerResp struct {
 	BaseResponse
-	Data Scheduler `json:"data"`
+	Data *Scheduler `json:"data"`
 }
 
 type UpdateSchedulerReq struct {
 	CreateSchedulerReq
+	ID int `path:"id"`
 }
 
 type UpdateSchedulerResp struct {
@@ -102,7 +104,7 @@ type UpdateSchedulerResp struct {
 }
 
 type DeleteSchedulerReq struct {
-	Id int `path:"id"`
+	ID int `path:"id"`
 }
 
 type DeleteSchedulerResp struct {
@@ -115,7 +117,7 @@ type QuerySchedulerReq struct {
 
 type QuerySchedulerResp struct {
 	BaseResponse
-	Data []Scheduler `json:"data"`
+	Data []*Scheduler `json:"data"`
 }
 
 type BaseResponse struct {
@@ -125,6 +127,6 @@ type BaseResponse struct {
 }
 
 type PaginationParams struct {
-	Page int `query:"page" validate:"required,min=1"`
-	Size int `query:"size" validate:"required,min=1,max=1000"`
+	Page int `form:"page" validate:"required,min=1"`
+	Size int `form:"size" validate:"required,min=1,max=1000"`
 }

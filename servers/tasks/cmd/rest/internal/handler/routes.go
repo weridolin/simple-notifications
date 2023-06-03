@@ -22,12 +22,12 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			},
 			{
 				Method:  http.MethodPut,
-				Path:    "/task",
+				Path:    "/task/:id",
 				Handler: task.UpdateTaskHandler(serverCtx),
 			},
 			{
 				Method:  http.MethodDelete,
-				Path:    "/task",
+				Path:    "/task/:id",
 				Handler: task.DeleteTaskHandler(serverCtx),
 			},
 			{
@@ -55,12 +55,12 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 			},
 			{
 				Method:  http.MethodPut,
-				Path:    "/scheduler",
+				Path:    "/scheduler/:id",
 				Handler: scheduler.UpdateSchedulerHandler(serverCtx),
 			},
 			{
 				Method:  http.MethodDelete,
-				Path:    "/scheduler",
+				Path:    "/scheduler/:id",
 				Handler: scheduler.DeleteSchedulerHandler(serverCtx),
 			},
 			{

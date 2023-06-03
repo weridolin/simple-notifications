@@ -1,12 +1,13 @@
 package models
 
 import (
+	"database/sql/driver"
 	"encoding/json"
 )
 
 type Ups map[string]interface{}
 
-func (u Ups) Value() ([]byte, error) {
+func (u Ups) Value() (driver.Value, error) {
 	return json.Marshal(u)
 }
 

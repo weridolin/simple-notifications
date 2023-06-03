@@ -5,6 +5,7 @@ import (
 
 	"github.com/weridolin/simple-vedio-notifications/servers/tasks/cmd/rest/internal/svc"
 	"github.com/weridolin/simple-vedio-notifications/servers/tasks/cmd/rest/internal/types"
+	"github.com/weridolin/simple-vedio-notifications/tools"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -24,7 +25,29 @@ func NewDeleteTaskLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Delete
 }
 
 func (l *DeleteTaskLogic) DeleteTask(req *types.DeleteTaskReq) (resp *types.DeleteTaskResp, err error) {
-	// todo: add your logic here and delete this line
-
-	return
+	userId := tools.GetUidFromCtx(l.ctx)
+	_, err = l.svcCtx.TaskModel.Query(map[string]interface{}{"id": req.ID, "user_id": userId}, l.svcCtx.DB)
+	if err != nil {
+		return &types.DeleteTaskResp{
+			BaseResponse: types.BaseResponse{
+				Code: tools.ModelRecordDeletedError.Code,
+				Msg:  err.Error(),
+			},
+		}, nil
+	}
+	err = l.svcCtx.TaskModel.Delete(req.ID, l.svcCtx.DB)
+	if err != nil {
+		return &types.DeleteTaskResp{
+			BaseResponse: types.BaseResponse{
+				Code: tools.ModelRecordDeletedError.Code,
+				Msg:  err.Error(),
+			},
+		}, nil
+	}
+	return &types.DeleteTaskResp{
+		BaseResponse: types.BaseResponse{
+			Code: 0,
+			Msg:  "删除成功",
+		},
+	}, nil
 }
