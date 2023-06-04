@@ -35,6 +35,7 @@ func (l *DeleteEmailNotifierLogic) DeleteEmailNotifier(req *types.DeleteEmailNot
 			},
 		}, nil
 	}
+	l.svcCtx.EmailNotifierModel.Delete(req.Id, l.svcCtx.DB)
 	return &types.DeleteEmailNotifierResp{
 		BaseResponse: types.BaseResponse{
 			Code: 0,

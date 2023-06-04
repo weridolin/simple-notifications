@@ -1,10 +1,13 @@
 package models
 
-import "encoding/json"
+import (
+	"database/sql/driver"
+	"encoding/json"
+)
 
 type EmailReceiver []string
 
-func (u EmailReceiver) Value() (any, error) {
+func (u EmailReceiver) Value() (driver.Value, error) {
 	return json.Marshal(u)
 }
 

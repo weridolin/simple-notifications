@@ -64,9 +64,12 @@ type QueryEmailNotifierReq struct {
 }
 
 type BindEmailNotifierToTaskReq struct {
+	TaskId []int `json:"task_id"`
+	EmailNotifierId int `json:"email_notifier_id"`
 }
 
 type BindEmailNotifierToTaskResp struct {
+	BaseResponse
 }
 
 type BaseResponse struct {
@@ -76,6 +79,6 @@ type BaseResponse struct {
 }
 
 type PaginationParams struct {
-	Page int `query:"page" validate:"required,min=1"`
-	Size int `query:"size" validate:"required,min=1,max=1000"`
+	Page int `form:"page" validate:"required,min=1"`
+	Size int `form:"size" validate:"required,min=1,max=1000"`
 }

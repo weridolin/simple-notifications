@@ -8,6 +8,7 @@ type EmailNotifierModel interface {
 	Create(userId int, pwd, sender, content string, receiver []string, DB *gorm.DB) (EmailNotifier, error)
 	Query(condition interface{}, DB *gorm.DB) (EmailNotifier, error)
 	QueryAll(condition interface{}, page, size int, DB *gorm.DB) ([]*EmailNotifier, error)
+	BindEmailNotifierToTask(userId int, taskId []int, emailNotifierId int, DB *gorm.DB) error
 }
 
 type EmailNotifier struct {
@@ -74,16 +75,16 @@ func (m *DefaultEmailNotifierModel) Query(condition interface{}, DB *gorm.DB) (E
 
 func (m *DefaultEmailNotifierModel) QueryAll(condition interface{}, page, size int, DB *gorm.DB) ([]*EmailNotifier, error) {
 	var notifiers []*EmailNotifier
-	err := DB.Table(m.Table).Where(condition).Offset((page - 1) * size).Limit(size).Find(&notifiers).Error
+	err := DB.Debug().Table(m.Table).Where(condition).Offset((page - 1) * size).Limit(size).Find(&notifiers).Error
 	return notifiers, err
 }
 
-func BindEmailNotifierToTask(userId, taskId int, emailNotifierId []int, DB *gorm.DB) error {
+func (m *DefaultEmailNotifierModel) BindEmailNotifierToTask(userId int, taskId []int, emailNotifierId int, DB *gorm.DB) error {
 	var emailNotifierTasks []EmailNotifierTask
-	for _, id := range emailNotifierId {
+	for _, id := range taskId {
 		emailNotifierTasks = append(emailNotifierTasks, EmailNotifierTask{
-			EmailNotifierID: id,
-			TaskID:          taskId,
+			EmailNotifierID: emailNotifierId,
+			TaskID:          id,
 		})
 	}
 	err := DB.Create(&emailNotifierTasks).Error

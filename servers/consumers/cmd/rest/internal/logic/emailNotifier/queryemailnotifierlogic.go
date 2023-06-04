@@ -2,6 +2,7 @@ package emailNotifier
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/weridolin/simple-vedio-notifications/servers/consumers/cmd/rest/internal/svc"
 	"github.com/weridolin/simple-vedio-notifications/servers/consumers/cmd/rest/internal/types"
@@ -26,7 +27,7 @@ func NewQueryEmailNotifierLogic(ctx context.Context, svcCtx *svc.ServiceContext)
 
 func (l *QueryEmailNotifierLogic) QueryEmailNotifier(req *types.QueryEmailNotifierReq) (resp *types.QueryEmailNotifierResp, err error) {
 	userId := tools.GetUidFromCtx(l.ctx)
-	emailNotifierList, err := l.svcCtx.EmailNotifierModel.QueryAll(map[string]interface{}{"user_id": userId}, req.Page, req.Size, l.svcCtx.DB)
+	emailNotifierList, err := l.svcCtx.EmailNotifierModel.QueryAll(map[string]interface{}{"user_id": int(userId)}, req.Page, req.Size, l.svcCtx.DB)
 	if err != nil {
 		return &types.QueryEmailNotifierResp{
 			BaseResponse: types.BaseResponse{
@@ -35,6 +36,7 @@ func (l *QueryEmailNotifierLogic) QueryEmailNotifier(req *types.QueryEmailNotifi
 			},
 		}, nil
 	}
+	fmt.Println(emailNotifierList, userId)
 	return &types.QueryEmailNotifierResp{
 		BaseResponse: types.BaseResponse{
 			Code: 0,
