@@ -1,0 +1,89 @@
+syntax = "v1"
+
+info(
+	title: "消息通知配置服务"
+	desc: "消息通知配置服务"
+	author: "werido"
+	email: "359066432@qq.com"
+	version: "v1"
+)
+
+import (
+	"../../../../common/base.api"
+)
+
+// 邮件信息
+// 用户信息
+type UserInfo {
+	Username     string     `json:"username"`
+	Email        string     `json:"email"`
+	Phone        string     `json:"phone"`
+	Avatar       string     `json:"avatar"`
+	Role         []string   `json:"role"`
+	IsSuperAdmin bool       `json:"is_super_admin"`
+	Age          int        `json:"age"`
+	Gender       int8       `json:"gender"`
+}
+
+
+// type EmailReceiver []string
+
+type EmailNotifier {
+	// UserID     UserInfo      `json:"user"`
+	Sender   string        `json:"sender"`
+	PWD      string        `json:"pwd"`
+	Receiver []string       `json:"receiver"`
+	Content  string        `json:"content"`
+}
+
+
+type CreateEmailNotifierReq {
+	Sender   string                 `json:"sender"`
+	PWD      string                 `json:"pwd"`
+	Receiver []string              `json:"receiver"`
+	Content  string                 `json:"content"`
+}
+
+type CreateEmailNotifierResp {
+    BaseResponse
+    Data    EmailNotifier     `json:"data"`
+}
+
+type DeleteEmailNotifierReq {
+        Id     int            `path:"id"`
+
+}
+
+type DeleteEmailNotifierResp {
+    BaseResponse
+}
+
+type UpdateEmailNotifierReq {
+    Id     int            `path:"id"`
+    Sender   string                 `json:"sender,optional"`
+    PWD      string                 `json:"pwd,optional"`
+    Receiver []string          `json:"receiver,optional"`
+    Content  string                 `json:"content,optional"`
+}
+
+type UpdateEmailNotifierResp {
+    BaseResponse
+    Data    EmailNotifier     `json:"data"` 
+}
+
+type QueryEmailNotifierResp {
+    BaseResponse
+    Data    EmailNotifier     `json:"data"` 
+}
+
+type QueryEmailNotifierReq {
+    PaginationParams
+}
+
+type BindEmailNotifierToTaskReq {
+
+}
+
+type BindEmailNotifierToTaskResp {
+
+}

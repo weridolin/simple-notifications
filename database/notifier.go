@@ -22,7 +22,7 @@ type EmailNotifierTask struct {
 	EmailNotifierID uint
 	EmailNotifier   EmailNotifier `gorm:"foreignKey:EmailNotifierID;OnDelete:CASCADE"`
 	TaskID          uint          `gorm:"comment:任务ID"`
-	Task            Task          `gorm:"foreignKey:TaskID;OnDelete:CASCADE"`
+	// Task            Task          `gorm:"foreignKey:TaskID;OnDelete:CASCADE"`
 }
 
 func (EmailNotifierTask) TableName() string {

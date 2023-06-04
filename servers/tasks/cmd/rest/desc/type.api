@@ -33,7 +33,7 @@ type Task{
 	User UserInfo `json:"user"`
 	PlatForm       string                               `json:"platform"`
 	Ups           	map[string]interface{} `json:"ups" desc:"up主"`
-	Schedulers     []Scheduler               `json:"schedulers"`
+	Schedulers     []*Scheduler               `json:"schedulers"`
 	Name           string                               `json:"name"`
 	Description    string                               `json:"description"`
 	// EmailNotifiers []*consumers.EmailNotifierSerializer `json:"email_notifiers"`
@@ -96,7 +96,7 @@ type Scheduler {
 	Period      string                       `json:"period"`
 	Active      bool                         `json:"active"`
 	User        UserInfo `json:"user"`	
-	Tasks       []Task        `json:"tasks"`
+	Tasks       []*Task        `json:"tasks"`
 	Name        string                       `json:"name"`
 	Description string                       `json:"description"`
 }

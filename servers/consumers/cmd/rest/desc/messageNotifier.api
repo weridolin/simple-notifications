@@ -1,0 +1,46 @@
+syntax = "v1"
+
+info(
+	title: "消息通知配置服务"
+	desc: "消息通知配置服务"
+	author: "werido"
+	email: "359066432@qq.com"
+	version: "v1"
+)
+
+import (
+	"type.api"
+)
+
+//============================> users api-v1 <============================
+//no need login
+@server(
+	prefix: api/v1
+	group: emailNotifier
+	jwt: JwtAuth
+
+)
+service emailNotifier {
+	
+	@doc "createEmailNotifier"
+	@handler CreateEmailNotifier
+	post /emailNotifier (CreateEmailNotifierReq) returns (CreateEmailNotifierResp)
+	
+	@doc "deleteEmailNotifier"
+	@handler DeleteEmailNotifier
+	delete /emailNotifier/:id returns (DeleteEmailNotifierResp)
+
+	
+	@doc "updateEmailNotifier"
+	@handler UpdateEmailNotifier
+	put /emailNotifier/:id (UpdateEmailNotifierReq) returns (UpdateEmailNotifierResp)
+	
+	@doc "queryEmailNotifier"
+	@handler QueryEmailNotifier
+	get /emailNotifier (QueryEmailNotifierReq) returns (QueryEmailNotifierResp)
+	
+	@doc "bindEmailNotifierToTask"
+	@handler BindEmailNotifierToTask
+	post /emailNotifier/bind (BindEmailNotifierToTaskReq) returns (BindEmailNotifierToTaskResp)
+	
+}
