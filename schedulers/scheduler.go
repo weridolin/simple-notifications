@@ -1,25 +1,15 @@
 /*
-	每个scheduler表示一个定时任务,可以包括多个task.
-	scheduler 不支持用户自定义，只提供内置的scheduler
-
+每个scheduler表示一个定时任务,可以包括多个task.
+scheduler 不支持用户自定义，只提供内置的scheduler
 */
-package schedulers
+package main
 
 import (
 	"github.com/weridolin/simple-vedio-notifications/common"
-	tools "github.com/weridolin/simple-vedio-notifications/tools"
+	"github.com/zeromicro/go-zero/core/logx"
 )
 
-type Scheduler struct {
-	Period   tools.Period  //定时周期
-	PlatForm string        //	scheduler对应的平台名称
-	Tasks    []interface{} // scheduler对应的task列表
-	Status   int8          // 0 停止 1 启动  2 暂停
-	DBIndex  int           //唯一索引
-	ticker   *Ticker       //绑定的ticker
-}
-
-func NewScheduler(period tools.Period, platform string, status int8, dbindex int) *Scheduler {
+func NewScheduler(period string, platform string, status int8, dbindex int) *Scheduler {
 	return &Scheduler{
 		period,
 		platform,
@@ -31,7 +21,7 @@ func NewScheduler(period tools.Period, platform string, status int8, dbindex int
 }
 
 func (s *Scheduler) Start() {
-	logger.Println("start scheduler...task ->", s.Tasks)
+	logx.Info("start scheduler...task ->", s.Tasks)
 	s.Status = 1
 	var i common.ITask
 	for _, t := range s.Tasks {
@@ -47,13 +37,13 @@ func (s *Scheduler) Stop() {
 		i = t.(common.ITask)
 		i.Stop()
 	}
-	logger.Println("stop scheduler finish", "DBIndex -> ", s.DBIndex)
+	logx.Info("stop scheduler finish", "DBIndex -> ", s.DBIndex)
 }
 
 func (s *Scheduler) AddTask(t interface{}) {
 	for _, task := range s.Tasks {
 		if task.(common.Meta).DBIndex == t.(common.Meta).DBIndex {
-			logger.Println("task already exist in scheduler,period -> ", s.Period.Cron, " platform -> ",
+			logx.Info("task already exist in scheduler,period -> ", s.Period, " platform -> ",
 				s.PlatForm, " taskID -> ", t.(common.Meta).DBIndex, "ScheduleID", s.DBIndex)
 			return
 		}
@@ -62,7 +52,7 @@ func (s *Scheduler) AddTask(t interface{}) {
 }
 
 func (s *Scheduler) RemoveTask(t common.Meta) {
-	logger.Println("remove task ID -> ", t.DBIndex, " from scheduler ID -> ", s.DBIndex)
+	logx.Info("remove task ID -> ", t.DBIndex, " from scheduler ID -> ", s.DBIndex)
 	for i, task := range s.Tasks {
 		if task.(common.Meta).DBIndex == t.DBIndex {
 			s.Tasks = append(s.Tasks[:i], s.Tasks[i+1:]...)
@@ -74,5 +64,5 @@ func (s *Scheduler) RemoveTask(t common.Meta) {
 func (s *Scheduler) Delete() {
 	s.Status = 0
 	s.ticker.Stop()
-	logger.Println("delete scheduler...", s)
+	logx.Info("delete scheduler...", s)
 }

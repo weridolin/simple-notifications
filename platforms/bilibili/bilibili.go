@@ -14,16 +14,16 @@ import (
 	"time"
 
 	"github.com/mitchellh/mapstructure"
-	clients "github.com/weridolin/simple-vedio-notifications/clients"
-	"github.com/weridolin/simple-vedio-notifications/common"
-	config "github.com/weridolin/simple-vedio-notifications/configs"
-	"github.com/weridolin/simple-vedio-notifications/database"
+	"github.com/zeromicro/go-zero/core/logx"
+
+	// config "github.com/weridolin/simple-vedio-notifications/configs"
+	// "github.com/weridolin/simple-vedio-notifications/database"
 	"github.com/weridolin/simple-vedio-notifications/storage"
 	tools "github.com/weridolin/simple-vedio-notifications/tools"
 )
 
-var logger = config.GetLogger()
-var appConfig = config.GetAppConfig()
+// var logger = config.GetLogger()
+// var appConfig = config.GetAppConfig()
 
 const (
 	domain          = "live.bilibili.com"
@@ -34,7 +34,7 @@ const (
 	GetVideoInfoUrl = "https://api.bilibili.com/x/space/wbi/arc/search?mid=%d&ps=30&pn=1&order=pubdate&platform=web" // ps 每页大小 pn 页码
 )
 
-//模拟浏览器请求头池
+// 模拟浏览器请求头池
 var BrowserUserAgentPool = []string{
 	"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36",
 	"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36 Edg/113.0.1774.35",
@@ -93,27 +93,24 @@ type VideoInfo struct {
 }
 
 type BiliBiliTask struct {
-	common.Meta
-	Ups            database.Ups
-	Period         tools.Period
-	Error          error
-	Result         interface{}
-	EmailNotifiers []*database.EmailNotifier
+	Meta
+	Ups    map[string]interface{}
+	Period tools.Period
+	Error  error
+	Result interface{}
 }
 
-func NewBiliBiliTask(period tools.Period, ups database.Ups, dbindex uint, name, description string,
-	emailNotifiers []*database.EmailNotifier, storage storage.StorageInterface) *BiliBiliTask {
+func NewBiliBiliTask(period tools.Period, ups map[string]interface{}, dbindex int, name, description string, storage storage.StorageInterface) *BiliBiliTask {
 	t := &BiliBiliTask{
-		Meta: common.Meta{
+		Meta: Meta{
 			DBIndex:     dbindex,
 			CallBacks:   make([]func(), 0),
 			Name:        name,
 			Description: description,
 			Storage:     storage,
 		},
-		EmailNotifiers: emailNotifiers,
-		Period:         period,
-		Ups:            ups,
+		Period: period,
+		Ups:    ups,
 	}
 	t.CallBacks = append(t.CallBacks, t.UpdateResult, t.PublicEmailNotifyMessage)
 
@@ -122,7 +119,7 @@ func NewBiliBiliTask(period tools.Period, ups database.Ups, dbindex uint, name, 
 
 func (t *BiliBiliTask) UpdateResult() {
 	if t.Error != nil {
-		logger.Println(t.DBIndex, " run error -> ", t.Error)
+		logx.Info(t.DBIndex, " run error -> ", t.Error)
 
 	}
 	records := make([]interface{}, 0)
@@ -138,40 +135,41 @@ func (t *BiliBiliTask) UpdateResult() {
 			})
 		}
 	}
-	logger.Println(t.DBIndex, " update result", t.Storage)
+	logx.Info(t.DBIndex, " update result", t.Storage)
 
 	t.Storage.Save(records)
 }
 
 func (t *BiliBiliTask) PublicEmailNotifyMessage() {
-	content, err := t.RenderEmailNotifyTemplate()
-	if err != nil {
-		logger.Println("render email notify template error -> ", err)
-		return
-	}
-	// logger.Println("public email notify message", content, t.EmailNotifiers, t.Error)
-	if t.Error != nil {
-		logger.Println("error -> ", t.Error)
-		return
-	} else if len(t.EmailNotifiers) > 0 {
-		rabbitMq := clients.NewRabbitMQ(tools.GetUUID())
-		for _, emailNotifier := range t.EmailNotifiers {
-			message, err := json.Marshal(
-				map[string]interface{}{
-					"sender":   emailNotifier.Sender,
-					"pwd":      emailNotifier.PWD,
-					"content":  content,
-					"receiver": emailNotifier.Receiver,
-				})
-			logger.Println("message -> ", string(message))
-			if err != nil {
-				logger.Println("json marshal error", err)
-				return
-			}
-			rabbitMq.Publish(appConfig.EmailMessageExchangeName, "bilibili.email.notify", message)
-			logger.Println("send message to rabbitmq")
-		}
-	}
+	// content, err := t.RenderEmailNotifyTemplate()
+	// if err != nil {
+	// 	logx.Info("render email notify template error -> ", err)
+	// 	return
+	// }
+	// // TODO 是否需要邮件通知解耦出来通过RPC去获取
+	// if t.Error != nil {
+	// 	logx.Info("error -> ", t.Error)
+	// 	return
+	// } else if len(t.EmailNotifiers) > 0 {
+	// 	rabbitMq := clients.NewRabbitMQ(tools.GetUUID())
+	// 	for _, emailNotifier := range t.EmailNotifiers {
+	// 		message, err := json.Marshal(
+	// 			map[string]interface{}{
+	// 				"sender":   emailNotifier.Sender,
+	// 				"pwd":      emailNotifier.PWD,
+	// 				"content":  content,
+	// 				"receiver": emailNotifier.Receiver,
+	// 			})
+	// 		logger.Println("message -> ", string(message))
+	// 		if err != nil {
+	// 			logger.Println("json marshal error", err)
+	// 			return
+	// 		}
+	// 		rabbitMq.Publish(appConfig.EmailMessageExchangeName, "bilibili.email.notify", message)
+	// 		logger.Println("send message to rabbitmq")
+	// 	}
+	// }
+	return
 }
 
 func (t *BiliBiliTask) Run() {
@@ -183,10 +181,10 @@ func (t *BiliBiliTask) Run() {
 	var result = make(map[string][]VideoInfo)
 
 	for up_name, up_id := range t.Ups {
-		logger.Println("获取 [哔哩哔哩] UP 投稿记录", "up主名字:", up_name, "up主ID:", up_id)
+		logx.Info("获取 [哔哩哔哩] UP 投稿记录", "up主名字:", up_name, "up主ID:", up_id)
 		var data map[string]interface{}
 		url := fmt.Sprintf(GetVideoInfoUrl, int(up_id.(float64)))
-		logger.Println("url = ", url)
+		logx.Info("url = ", url)
 		req, _ := http.NewRequest("GET", url, nil)
 
 		// 伪造请求头
@@ -204,9 +202,9 @@ func (t *BiliBiliTask) Run() {
 		req.Header.Add("User-Agent", GetRandomUserAgent())
 		// req.Header.Add("Cookie", "innersign=0; buvid3=324A040F-38FD-78B7-0BB2-687CB2E5A03D22670infoc; i-wanna-go-back=-1; b_ut=7; b_lsid=5E951F7D_188148AD1D2; bsource=search_bing; _uuid=B10627D6A-C9D6-E9106-3B6E-24108AB6C4B7522042infoc; FEED_LIVE_VERSION=V8; header_theme_version=undefined; buvid_fp=60df8955b90249b31ca1d24a40946184; home_feed_column=5; browser_resolution=1856-903; buvid4=3FDB890D-946E-B821-674C-03925B57884F24094-023051317-VheKLZviuDHxVPxcieCAUg==; b_nut=1683971823; nostalgia_conf=-1; PVID=3")
 		resp, http_err := client.Do(req)
-		logger.Println("rep HEADER = ", req.Header)
+		logx.Info("rep HEADER = ", req.Header)
 		if http_err != nil {
-			logger.Println("http get err = ", http_err)
+			logx.Info("http get err = ", http_err)
 			t.Error = http_err
 			goto Callback
 			// panic(http_err)
@@ -216,7 +214,7 @@ func (t *BiliBiliTask) Run() {
 		if !resp.Uncompressed {
 			reader, err := gzip.NewReader(resp.Body)
 			if err != nil {
-				logger.Println("gzip reader err = ", err)
+				logx.Info("gzip reader err = ", err)
 				t.Error = err
 				goto Callback
 			}
@@ -229,7 +227,7 @@ func (t *BiliBiliTask) Run() {
 		// if resp.StatusCode != 200 {
 		err := json.Unmarshal([]byte(body), &data)
 		if err != nil {
-			logger.Println("unmarshal err = ", err)
+			logx.Info("unmarshal err = ", err)
 			t.Error = err
 			break
 		}
@@ -239,7 +237,7 @@ func (t *BiliBiliTask) Run() {
 		var videoInfoList []VideoInfo
 		if err := mapstructure.Decode(VideoListResponse, &videoInfoList); err != nil {
 			t.Error = err
-			logger.Println("mapstructure decode err = ", err)
+			logx.Info("mapstructure decode err = ", err)
 		}
 		// logger.Println("获取 up ->", up_name, "作品信息", videoInfoList)
 		result[up_name] = videoInfoList
@@ -266,19 +264,19 @@ func (t *BiliBiliTask) Stop() {
 
 func (t *BiliBiliTask) RenderEmailNotifyTemplate() (string, error) {
 	//渲染邮件模板
-	logger.Println("RenderEmailNotifyTemplate")
+	logx.Info("RenderEmailNotifyTemplate")
 	var content string
 	buffer := new(bytes.Buffer)
 	root, _ := os.Getwd()
 	templatePath := path.Join(root, "static", "templates", "EmailNotifyTemplate.html")
 	data, err := ioutil.ReadFile(templatePath)
 	if err != nil {
-		logger.Println("read template err = ", err)
+		logx.Info("read template err = ", err)
 		return content, nil
 	}
 	template, err := template.New("webpage").Parse(string(data))
 	if err != nil {
-		logger.Println("template parse err = ", err)
+		logx.Info("template parse err = ", err)
 		return "", nil
 	}
 	templateParams := struct {

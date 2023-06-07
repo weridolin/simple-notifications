@@ -1,5 +1,5 @@
-package schedulers
+package main
 
-import config "github.com/weridolin/simple-vedio-notifications/configs"
+// import config "github.com/weridolin/simple-vedio-notifications/configs"
 
-var logger = config.GetLogger()
+// var logger = config.GetLogger()

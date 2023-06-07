@@ -1,17 +1,16 @@
 /*
-	manager.go: 统一管理所有scheduler,对scheduler的操作都必须经过manager
-	每个manager会对应一个tickerPool,用于管理所有的ticker
-
-
+manager.go: 统一管理所有scheduler,对scheduler的操作都必须经过manager
+每个manager会对应一个tickerPool,用于管理所有的ticker
 */
-package schedulers
+package main
 
 import (
 	"context"
 	"sync"
 
-	config "github.com/weridolin/simple-vedio-notifications/configs"
+	// config "github.com/weridolin/simple-vedio-notifications/configs"
 	"github.com/weridolin/simple-vedio-notifications/tools"
+	"honnef.co/go/tools/config"
 )
 
 type SchedulerManager struct {

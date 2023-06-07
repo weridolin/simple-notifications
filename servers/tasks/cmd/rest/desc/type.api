@@ -36,7 +36,6 @@ type Task{
 	Schedulers     []*Scheduler               `json:"schedulers"`
 	Name           string                               `json:"name"`
 	Description    string                               `json:"description"`
-	// EmailNotifiers []*consumers.EmailNotifierSerializer `json:"email_notifiers"`
 }
 
 type CreateTaskReq

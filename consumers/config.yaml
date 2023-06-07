@@ -1,0 +1,8 @@
+emailConsumerConfig:
+  sender: "359066432@qq.com"
+  pwd: "wjcyfwozmmerbghi"
+  interval: 1
+
+rabbitmqConfig:
+  rabbitmqUri: "amqp://werido:359066432@127.0.0.1:5672/"
+  emailMessageQueueName: "consumer.email.nofify.queue"

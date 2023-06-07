@@ -1,46 +1,45 @@
-package consumers
+package main
 
 import (
 	"encoding/json"
 
 	"github.com/weridolin/simple-vedio-notifications/clients"
-	config "github.com/weridolin/simple-vedio-notifications/configs"
 	"github.com/weridolin/simple-vedio-notifications/tools"
+	"github.com/zeromicro/go-zero/core/logx"
 )
 
-var logger = config.GetLogger()
-var appConfig = config.GetAppConfig()
-
 type EmailConsumer struct {
-	MQClient      *clients.RabbitMQ
-	DefaultSender string
-	DefaultPWD    string
-	Interval      uint //两次发送的时间间隔
+	MQClient       *clients.RabbitMQ
+	DefaultSender  string
+	DefaultPWD     string
+	Interval       int //两次发送的时间间隔
+	ConsumerConfig ConsumerConfig
 }
 
-func NewEmailConsumer(id string) *EmailConsumer {
-	var AppConfig = config.GetAppConfig()
+func NewEmailConsumer(id string, config ConsumerConfig) *EmailConsumer {
 	return &EmailConsumer{
-		MQClient:      clients.NewRabbitMQ(id),
-		DefaultSender: AppConfig.DefaultSender,
-		DefaultPWD:    AppConfig.DefaultPWD,
-		Interval:      1,
+		MQClient:       clients.NewRabbitMQ(id, config.RabbitMQConfig.RabbitMQUri),
+		DefaultSender:  config.EmailConsumerConfig.Sender,
+		DefaultPWD:     config.EmailConsumerConfig.PWD,
+		Interval:       config.EmailConsumerConfig.Interval,
+		ConsumerConfig: config,
 	}
 }
 
 func (c *EmailConsumer) Start() {
-	c.MQClient.ReceiveTopic(appConfig.EmailMessageQueueName, c.OnMessage)
+	c.MQClient.ReceiveTopic(c.ConsumerConfig.RabbitMQConfig.EmailMessageQueueName, c.OnMessage)
 }
 
 func (c *EmailConsumer) OnMessage(message []byte) error {
-	logger.Println("email consumer-> ", c.MQClient.ID, " get message from rabbitmq ->")
+	logx.Info("email consumer-> ", c.MQClient.ID, " get message from rabbitmq ->")
 	var err error
 	EmailNotifyMessage := EmailNotifyMessage{Subject: "bilibili up 订阅结果通知"}
 	err = json.Unmarshal(message, &EmailNotifyMessage)
 	if err != nil {
-		logger.Println("反序列化失败", err)
+		logx.Info("反序列化失败", err)
 	}
-	logger.Println("email consumer get message from rabbitmq ->", EmailNotifyMessage)
-	err = tools.SendEmail(EmailNotifyMessage.Receiver, EmailNotifyMessage.Subject, EmailNotifyMessage.Content, EmailNotifyMessage.Sender, EmailNotifyMessage.PWD)
+	logx.Info("email consumer get message from rabbitmq ->", EmailNotifyMessage)
+	err = tools.SendEmail(EmailNotifyMessage.Receiver, EmailNotifyMessage.Subject,
+		EmailNotifyMessage.Content, EmailNotifyMessage.Sender, EmailNotifyMessage.PWD)
 	return err
 }

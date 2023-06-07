@@ -13,3 +13,4 @@ Logger:
   # MaxAge: 30
   ServiceName: tasks-rest-api
   MODE: console
+  Encoding: plain

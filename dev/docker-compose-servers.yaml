@@ -1,0 +1,13 @@
+version: '3'
+services:
+  servers:
+    image: golang:latest
+    volumes:
+      - .:/go/src/servers
+    working_dir: /go/src/servers
+    command: 
+
+
+networks:
+  simple_notifications:
+    driver: bridge
