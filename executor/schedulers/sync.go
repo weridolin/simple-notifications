@@ -4,14 +4,14 @@
 	1.达到最大时间间隔
 	2.有新的任务插入,信号触发
 */
-package main
+package scheduler
 
 import (
 	"context"
 	"time"
 
 	"github.com/weridolin/simple-vedio-notifications/clients"
-	"github.com/weridolin/simple-vedio-notifications/platforms/bilibili"
+	"github.com/weridolin/simple-vedio-notifications/executor/platforms/bilibili"
 	"github.com/weridolin/simple-vedio-notifications/tools"
 	"github.com/zeromicro/go-zero/core/logx"
 )

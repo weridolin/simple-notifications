@@ -2,10 +2,10 @@
 每个scheduler表示一个定时任务,可以包括多个task.
 scheduler 不支持用户自定义，只提供内置的scheduler
 */
-package main
+package scheduler
 
 import (
-	"github.com/weridolin/simple-vedio-notifications/common"
+	common "github.com/weridolin/simple-vedio-notifications/executor/common"
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -23,18 +23,18 @@ func NewScheduler(period string, platform string, status int8, dbindex int) *Sch
 func (s *Scheduler) Start() {
 	logx.Info("start scheduler...task ->", s.Tasks)
 	s.Status = 1
-	var i common.ITask
+	var i ITask
 	for _, t := range s.Tasks {
-		i = t.(common.ITask)
+		i = t.(ITask)
 		i.Run()
 	}
 }
 
 func (s *Scheduler) Stop() {
 	s.Status = 0
-	var i common.ITask
+	var i ITask
 	for _, t := range s.Tasks {
-		i = t.(common.ITask)
+		i = t.(ITask)
 		i.Stop()
 	}
 	logx.Info("stop scheduler finish", "DBIndex -> ", s.DBIndex)

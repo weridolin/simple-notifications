@@ -2,12 +2,11 @@ package common
 
 import (
 	"errors"
-
 	"github.com/weridolin/simple-vedio-notifications/storage"
 )
 
 type Meta struct {
-	DBIndex     uint
+	DBIndex     int
 	Name        string
 	Description string
 	CallBacks   []func()                 //每次运行回调函数列表
@@ -20,10 +19,4 @@ func (t *Meta) Run() error {
 
 func (t *Meta) Stop() error {
 	return errors.New("not implement")
-}
-
-type ITask interface {
-	Run()
-	GetUpInfo()
-	Stop()
 }

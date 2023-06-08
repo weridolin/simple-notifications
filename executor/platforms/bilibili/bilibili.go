@@ -18,6 +18,8 @@ import (
 
 	// config "github.com/weridolin/simple-vedio-notifications/configs"
 	// "github.com/weridolin/simple-vedio-notifications/database"
+
+	common "github.com/weridolin/simple-vedio-notifications/executor/common"
 	"github.com/weridolin/simple-vedio-notifications/storage"
 	tools "github.com/weridolin/simple-vedio-notifications/tools"
 )
@@ -93,7 +95,7 @@ type VideoInfo struct {
 }
 
 type BiliBiliTask struct {
-	Meta
+	common.Meta
 	Ups    map[string]interface{}
 	Period tools.Period
 	Error  error
@@ -102,7 +104,7 @@ type BiliBiliTask struct {
 
 func NewBiliBiliTask(period tools.Period, ups map[string]interface{}, dbindex int, name, description string, storage storage.StorageInterface) *BiliBiliTask {
 	t := &BiliBiliTask{
-		Meta: Meta{
+		Meta: common.Meta{
 			DBIndex:     dbindex,
 			CallBacks:   make([]func(), 0),
 			Name:        name,

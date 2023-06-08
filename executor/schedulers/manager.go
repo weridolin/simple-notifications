@@ -2,7 +2,7 @@
 manager.go: 统一管理所有scheduler,对scheduler的操作都必须经过manager
 每个manager会对应一个tickerPool,用于管理所有的ticker
 */
-package main
+package scheduler
 
 import (
 	"context"

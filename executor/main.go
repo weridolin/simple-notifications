@@ -3,6 +3,8 @@ package main
 import (
 	"flag"
 	"fmt"
+
+	scheduler "github.com/weridolin/simple-vedio-notifications/executor/schedulers"
 )
 
 var configFile string = ""
@@ -14,7 +16,7 @@ func init() {
 
 func main() {
 	//这里要主要的是，如果是在main函数中，运行要使用 go run ./directory
-	config := &SchedulerConfig{}
+	config := &scheduler.SchedulerConfig{}
 	if configFile == "" {
 		fmt.Println("请使用 -f 指定配置文件目录")
 		return

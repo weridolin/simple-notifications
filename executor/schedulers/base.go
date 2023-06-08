@@ -1,10 +1,13 @@
-package main
+package scheduler
 
 import (
 	"os"
 
+	"github.com/robfig/cron"
 	"github.com/zeromicro/go-zero/core/logx"
 	"gopkg.in/yaml.v3"
+
+	"github.com/weridolin/simple-vedio-notifications/storage"
 )
 
 type Storage struct {
@@ -29,7 +32,7 @@ type SchedulerConfig struct {
 }
 
 func (s *SchedulerConfig) FromYamlFile(configPath string) *SchedulerConfig {
-	dataBytes, err := os.ReadFile(configFile)
+	dataBytes, err := os.ReadFile(configPath)
 	if err != nil {
 		logx.Error("读取文件失败：", err)
 		return nil
@@ -41,6 +44,28 @@ func (s *SchedulerConfig) FromYamlFile(configPath string) *SchedulerConfig {
 		return nil
 	}
 	return ConfigInstance
+}
+
+type Ticker struct {
+	PlatForm          string       // ticker所属平台，每个ticker只能对应一个平台
+	MaxSchedulerCount int          // ticker 对应的scheduler最大监听数量
+	ScheduLerCache    []*Scheduler // ticker里面监听的scheduler
+	Executor          *cron.Cron   // ticker 对应的执行器
+	tp                *TickerPool  // ticker绑定的ticker pool
+	id                string       // ticker的唯一标识
+}
+
+type TickerPool struct {
+	MaxTickerCount   int //这里是指每个platform对应的最大ticker数量
+	SchedulerCache   map[int]*Scheduler
+	TickerCache      map[string][]*Ticker
+	RunningTicker    []*Ticker
+	WaitingTicker    []*Ticker
+	RunningScheduler []*Scheduler
+	WaitingScheduler []*Scheduler
+	ID               string
+	Storage          storage.StorageInterface
+	AppConfig        SchedulerConfig
 }
 
 type Scheduler struct {

@@ -8,25 +8,16 @@ tickerPool是对所有ticker的管理，采用的类似线程池的实现方式�
 当初ticker中的scheduler都停止或者出错时,ticker会去判断tickerPool中是否有属于同个platform的等待的scheduler,如果有则会把等待的scheduler加入到ticker中执行，
 如没有，则会再去遍历tp的等待队列，拿到第一个platform不同且该platform还未达到上限的scheduler,添加到该ticker并且作为该platform下的ticker运行
 */
-package main
+package scheduler
 
 import (
 	"context"
 
-	"github.com/robfig/cron/v3"
+	"github.com/robfig/cron"
 	"github.com/weridolin/simple-vedio-notifications/storage"
 	"github.com/weridolin/simple-vedio-notifications/tools"
 	"github.com/zeromicro/go-zero/core/logx"
 )
-
-type Ticker struct {
-	PlatForm          string       // ticker所属平台，每个ticker只能对应一个平台
-	MaxSchedulerCount int          // ticker 对应的scheduler最大监听数量
-	ScheduLerCache    []*Scheduler // ticker里面监听的scheduler
-	Executor          *cron.Cron   // ticker 对应的执行器
-	tp                *TickerPool  // ticker绑定的ticker pool
-	id                string       // ticker的唯一标识
-}
 
 func NewTicker(platform string, maxSchedulerCount int, schedulers []*Scheduler) *Ticker {
 	t := &Ticker{platform, maxSchedulerCount, schedulers, cron.New(), nil, tools.GetUUID()}
@@ -74,19 +65,6 @@ func (t *Ticker) Stop() {
 		s.ticker = nil
 	}
 	t.Executor.Stop()
-}
-
-type TickerPool struct {
-	MaxTickerCount   int //这里是指每个platform对应的最大ticker数量
-	SchedulerCache   map[int]*Scheduler
-	TickerCache      map[string][]*Ticker
-	RunningTicker    []*Ticker
-	WaitingTicker    []*Ticker
-	RunningScheduler []*Scheduler
-	WaitingScheduler []*Scheduler
-	ID               string
-	Storage          storage.StorageInterface
-	AppConfig        SchedulerConfig
 }
 
 func NewTickerPool(config SchedulerConfig) *TickerPool {
