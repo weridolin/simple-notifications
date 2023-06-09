@@ -13,3 +13,10 @@ Storage:
   StorageParams:
     MongoDbUri:  mongodb://admin:admin@localhost:27017/
     MongoDbName:  SimpleNotification
+
+
+  #监控
+Prometheus:
+  Host: "0.0.0.0"
+  Port: 4002
+  Path: /metrics

@@ -4,7 +4,7 @@ import (
 	"flag"
 	"fmt"
 
-	"github.com/weridolin/simple-vedio-notifications/tools"
+	"github.com/weridolin/simple-vedio-notifications/monitor"
 )
 
 var configFile string = ""
@@ -22,6 +22,10 @@ func main() {
 		return
 	}
 	config = config.FromYamlFile(configFile)
-	emailConsumer := NewEmailConsumer(tools.GetUUID(), *config)
-	emailConsumer.Start()
+
+	// 启动监控
+	fmt.Println("consumer监控启动...", config.Prometheus.Host, ":", config.Prometheus.Port, config.Prometheus.Path)
+	monitor.Start(config.Prometheus.Host, config.Prometheus.Port, config.Prometheus.Path)
+	// emailConsumer := NewEmailConsumer(tools.GetUUID(), *config)
+	// emailConsumer.Start()
 }

@@ -7,12 +7,13 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 	"gopkg.in/yaml.v3"
 
+	"github.com/weridolin/simple-vedio-notifications/monitor"
 	"github.com/weridolin/simple-vedio-notifications/storage"
 )
 
 type Storage struct {
-	StorageType   string                 `json:"StorageType" yaml:"StorageType"` // 存储类型
-	StorageParams map[string]interface{} `json:"StorageParams" yaml:"StorageParams"`
+	StorageType   string      `json:"StorageType" yaml:"StorageType"` // 存储类型
+	StorageParams interface{} `json:"StorageParams" yaml:"StorageParams"`
 }
 
 type SchedulerConfig struct {
@@ -29,6 +30,8 @@ type SchedulerConfig struct {
 
 	// StorageFileRelativePath     string // 结果存储文件路径
 	Storage Storage `json:"Storage" yaml:"Storage"`
+
+	Prometheus monitor.Prometheus `json:"Prometheus" yaml:"Prometheus"`
 }
 
 func (s *SchedulerConfig) FromYamlFile(configPath string) *SchedulerConfig {

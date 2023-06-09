@@ -2,8 +2,10 @@ package storage
 
 import (
 	"context"
+	"fmt"
 
 	// config "github.com/weridolin/simple-vedio-notifications/configs"
+	"github.com/mitchellh/mapstructure"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -32,12 +34,15 @@ type FileStorageParams struct {
 type MySqlStorageParams struct {
 }
 
-func NewStorage(ctx context.Context, storageType string, storageParams StorageParams) StorageInterface {
+func NewStorage(ctx context.Context, storageType string, storageParams interface{}) StorageInterface {
 	var storage StorageInterface
 	switch storageType {
 	case "mongodb":
 		{
-			StorageInstance := NewMongoDBStorage(storageParams.(MongoBDStorageParams).MongoDbUri, storageParams.(MongoBDStorageParams).MongoDbName, storageParams.(MongoBDStorageParams).CollectionName, ctx)
+			var params MongoBDStorageParams
+			fmt.Println("storageParams:", storageParams)
+			mapstructure.Decode(params, &storageParams)
+			StorageInstance := NewMongoDBStorage(params.MongoDbUri, params.MongoDbName, params.CollectionName, ctx)
 			StorageInstance.CreateIndex(mongo.IndexModel{
 				Keys: map[string]int{"videoinfo.created": 1}}, nil)
 			StorageInstance.CreateIndex(mongo.IndexModel{

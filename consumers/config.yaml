@@ -6,3 +6,10 @@ emailConsumerConfig:
 rabbitmqConfig:
   rabbitmqUri: "amqp://werido:359066432@127.0.0.1:5672/"
   emailMessageQueueName: "consumer.email.nofify.queue"
+
+
+  #监控
+Prometheus:
+  Host: 0.0.0.0
+  Port: 4003
+  Path: /metrics

@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	scheduler "github.com/weridolin/simple-vedio-notifications/executor/schedulers"
+	"github.com/weridolin/simple-vedio-notifications/monitor"
 )
 
 var configFile string = ""
@@ -22,5 +23,8 @@ func main() {
 		return
 	}
 	config = config.FromYamlFile(configFile)
-	fmt.Println(config, ">>>")
+	// 启动监控
+	monitor.Start(config.Prometheus.Host, config.Prometheus.Port, config.Prometheus.Path)
+	// sync := scheduler.NewSynchronizer(*config)
+	// sync.Start()
 }

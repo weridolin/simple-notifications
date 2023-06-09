@@ -14,3 +14,10 @@ Logger:
 JwtAuth:
   AccessSecret: ae0536f9-6450-4606-8e13-5a19ed505da0
   AccessExpire: 36000
+
+
+  #监控
+Prometheus:
+  Host: 0.0.0.0
+  Port: 4007
+  Path: /metrics

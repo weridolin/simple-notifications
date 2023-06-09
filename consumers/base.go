@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 
+	"github.com/weridolin/simple-vedio-notifications/monitor"
 	"github.com/zeromicro/go-zero/core/logx"
 	"gopkg.in/yaml.v3"
 )
@@ -29,6 +30,7 @@ type RabbitMQConfig struct {
 type ConsumerConfig struct {
 	EmailConsumerConfig EmailConfigConsumer `json:"emailConsumerConfig" yaml:"emailConsumerConfig"`
 	RabbitMQConfig      RabbitMQConfig      `json:"rabbitmqConfig" yaml:"rabbitmqConfig"`
+	Prometheus          monitor.Prometheus  `json:"prometheus" yaml:"Prometheus"`
 }
 
 func (config *ConsumerConfig) FromYamlFile(configFile string) *ConsumerConfig {

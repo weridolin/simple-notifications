@@ -1,13 +1,28 @@
 version: '3'
 services:
   servers:
-    image: golang:latest
-    volumes:
-      - .:/go/src/servers
-    working_dir: /go/src/servers
-    command: 
+    build: 
+      context: ../
+      dockerfile: ./dev/Dockerfile
+    command:       
+      - /bin/bash
+      - -c
+      - |
+        go mod tidy
+        echo 'start server...'
+        modd -f ./modd-linux.conf
+    # volumes:
+    #   - /pythons/blogNew/werido-site-backend/:/var/www/html/weridoBlog/
+    ports:
+      - "10080:8080"
+      - "10081:8081"
+      - "10082:8082"
 
+    networks:
+      - simple_notifications
 
 networks:
   simple_notifications:
     driver: bridge
+    external:
+      name: simple_notifications

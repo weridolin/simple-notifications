@@ -14,6 +14,8 @@ services:
     command: redis-server /etc/redis/redis.conf --requirepass werido
     # command: redis-server --requirepass werido
     privileged: true
+    networks:
+      - simple_notifications
 
   rabbitmq:
     container_name: rabbitmq
@@ -28,6 +30,8 @@ services:
       - RABBITMQ_ERLANG_COOKIE=weridolin
     # volumes:
     #  - /usr/rabbitmq:/etc/rabbitmq/enabled_plugins
+    networks:
+      - simple_notifications
 
   mongodb:
     image: mongo
@@ -40,6 +44,9 @@ services:
       - MONGO_INITDB_ROOT_USERNAME=admin
       - MONGO_INITDB_ROOT_PASSWORD=admin
 
+    networks:
+      - simple_notifications
+
   mongo-express:
     image: mongo-express
     # container_name: mongo-express
@@ -50,6 +57,8 @@ services:
       - ME_CONFIG_MONGODB_ADMINUSERNAME=admin
       - ME_CONFIG_MONGODB_ADMINPASSWORD=admin
       - ME_CONFIG_MONGODB_SERVER=mongodb
+    networks:
+      - simple_notifications
 
   #jaeger链路追踪 — Jaeger for tracing
   jaeger:
@@ -233,3 +242,4 @@ services:
 networks:
   simple_notifications:
     driver: bridge
+    external: true # 来自外部

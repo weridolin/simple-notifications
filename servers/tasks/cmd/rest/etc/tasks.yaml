@@ -14,3 +14,9 @@ Logger:
   ServiceName: tasks-rest-api
   MODE: console
   Encoding: plain
+
+#监控
+Prometheus:
+  Host: 0.0.0.0
+  Port: 4009
+  Path: /metrics
