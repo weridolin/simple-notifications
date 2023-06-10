@@ -49,7 +49,7 @@ func (sm *SchedulerManager) AddScheduler(s *Scheduler, startAtOnce bool) (*Sched
 		tp := sm.Ctx.Value("tp")
 		sm.lock.RLock()
 		defer sm.lock.RUnlock()
-		tp.SubmitScheduler(s)
+		tp.(*TickerPool).SubmitScheduler(s)
 	}
 	return sm, nil
 }
