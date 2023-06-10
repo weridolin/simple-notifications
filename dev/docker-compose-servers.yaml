@@ -8,9 +8,9 @@ services:
       - /bin/bash
       - -c
       - |
-        go mod tidy
         echo 'start server...'
-        modd -f ./modd-linux.conf
+        go install github.com/cortesi/modd/cmd/modd
+        modd -f modd-linux.conf
     # volumes:
     #   - /pythons/blogNew/werido-site-backend/:/var/www/html/weridoBlog/
     ports:
