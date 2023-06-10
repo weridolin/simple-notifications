@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 
+	"github.com/joho/godotenv"
 	scheduler "github.com/weridolin/simple-vedio-notifications/executor/schedulers"
 	"github.com/weridolin/simple-vedio-notifications/monitor"
 )
@@ -13,6 +14,12 @@ var configFile string = ""
 func init() {
 	flag.StringVar(&configFile, "f", "", "scheduler配置文件路径")
 	flag.Parse()
+
+	// 读取.env环境变量
+	err := godotenv.Load(".env")
+	if err != nil {
+		panic("读取.env环境变量失败")
+	}
 }
 
 func main() {

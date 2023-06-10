@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 
+	"github.com/joho/godotenv"
 	"github.com/weridolin/simple-vedio-notifications/servers/users/cmd/rest/internal/config"
 	"github.com/weridolin/simple-vedio-notifications/servers/users/cmd/rest/internal/handler"
 	"github.com/weridolin/simple-vedio-notifications/servers/users/cmd/rest/internal/svc"
@@ -14,6 +15,13 @@ import (
 
 var configFile = flag.String("f", "etc/users.yaml", "the config file")
 
+func init() {
+	// 读取.env环境变量
+	err := godotenv.Load(".env")
+	if err != nil {
+		panic("读取.env环境变量失败")
+	}
+}
 func main() {
 	flag.Parse()
 

@@ -4,7 +4,7 @@ Port: 8081
 JwtAuth:
   AccessSecret: ae0536f9-6450-4606-8e13-5a19ed505da0
   AccessExpire: 36000
-DBUri: "root:werido@tcp(8.131.78.84:3306)/simple_notification?charset=utf8mb4&parseTime=true"
+DBUri: ${DB_URI}
 Logger:
   Level: debug
   # Path: /var/log/users.log

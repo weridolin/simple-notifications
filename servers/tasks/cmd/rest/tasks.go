@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 
+	"github.com/joho/godotenv"
 	"github.com/weridolin/simple-vedio-notifications/servers/tasks/cmd/rest/internal/config"
 	"github.com/weridolin/simple-vedio-notifications/servers/tasks/cmd/rest/internal/handler"
 	"github.com/weridolin/simple-vedio-notifications/servers/tasks/cmd/rest/internal/svc"
@@ -13,6 +14,14 @@ import (
 )
 
 var configFile = flag.String("f", "etc/tasks.yaml", "the config file")
+
+func init() {
+	// 读取.env环境变量
+	err := godotenv.Load(".env")
+	if err != nil {
+		panic("读取.env环境变量失败")
+	}
+}
 
 func main() {
 	flag.Parse()
