@@ -5,10 +5,18 @@ import (
 	"net/smtp"
 
 	"github.com/jordan-wright/email"
-	config "github.com/weridolin/simple-vedio-notifications/configs"
+	"github.com/zeromicro/go-zero/core/logx"
 )
 
-var logger = config.GetLogger()
+// import (
+// 	"fmt"
+// 	"net/smtp"
+
+// 	"github.com/jordan-wright/email"
+// 	config "github.com/weridolin/simple-vedio-notifications/configs"
+// )
+
+// var logger = config.GetLogger()
 
 func SendEmail(receiver []string, subject string, content string, sender, pwd string) error {
 	e := email.NewEmail()
@@ -23,7 +31,7 @@ func SendEmail(receiver []string, subject string, content string, sender, pwd st
 	//设置服务器相关的配置
 	err := e.Send("smtp.qq.com:25", smtp.PlainAuth("", sender, pwd, "smtp.qq.com"))
 	if err != nil {
-		logger.Println("send email failed ->", err)
+		logx.Info("send email failed ->", err)
 	}
 	return err
 }

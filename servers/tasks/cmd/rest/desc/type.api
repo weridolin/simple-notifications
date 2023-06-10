@@ -1,0 +1,131 @@
+syntax = "v1"
+
+info(
+	title: "任务服务"
+	desc: "任务服务"
+	author: "werido"
+	email: "359066432@qq.com"
+	version: "v1"
+)
+
+import (
+	"../../../../common/base.api"
+	// "../../../../users/cmd/rest/desc/user.api"
+)
+
+
+// 用户信息
+type UserInfo {
+	Username     string     `json:"username"`
+	Email        string     `json:"email"`
+	Phone        string     `json:"phone"`
+	Avatar       string     `json:"avatar"`
+	Role         []string   `json:"role"`
+	IsSuperAdmin bool       `json:"is_super_admin"`
+	Age          int        `json:"age"`
+	Gender       int8       `json:"gender"`
+}
+
+
+// 任务相关
+type Task{
+	ID   int                         `json:"id"`
+	User UserInfo `json:"user"`
+	PlatForm       string                               `json:"platform"`
+	Ups           	map[string]interface{} `json:"ups" desc:"up主"`
+	Schedulers     []*Scheduler               `json:"schedulers"`
+	Name           string                               `json:"name"`
+	Description    string                               `json:"description"`
+}
+
+type CreateTaskReq
+{	Platform string `json:"platform" desc:"平台"`
+	Ups		map[string]interface{} `json:"ups" desc:"up主"`
+	schedulers []int 		`json:"schedulers" desc:"绑定的运行计划列表"`
+	name string 			`json:"name" desc:"任务名称"`
+    description string 		`json:"description" desc:"任务描述"`
+}
+
+type CreateTaskResp{
+	BaseResponse
+	Data Task `json:"data"`
+}
+
+type UpdateTaskReq{
+	CreateTaskReq
+
+}
+type UpdateTaskResp{
+	CreateTaskResp
+}
+
+type DeleteTaskReq{
+	ID int `json:"id"`
+}
+
+type DeleteTaskResp{
+	BaseResponse
+	Data Task `json:"data,optional"`
+}
+
+type QueryTaskReq{
+	PaginationParams
+}
+
+type QueryTaskResp{
+	BaseResponse
+	Data []Task `json:"data"`
+}
+
+
+type BindSchedulerReq{
+	SchedulerID int   `json:"scheduler_id"`
+	TaskID      []int `json:"task_id"`
+}
+
+type BindSchedulerResp{
+	BaseResponse
+	Data []Task `json:"data,optional"`
+}
+
+
+// 计划配置相关
+type Scheduler {
+	ID          int                         `json:"id"`
+	Period      string                       `json:"period"`
+	Active      bool                         `json:"active"`
+	User        UserInfo `json:"user"`	
+	Tasks       []*Task        `json:"tasks"`
+	Name        string                       `json:"name"`
+	Description string                       `json:"description"`
+}
+
+type CreateSchedulerReq{
+    Period string `json:"period" desc:"运行周期"`
+	Platform string `json:"platform" desc:"平台"`
+    Name string `json:"name" desc:"计划名称"`
+    Description string `json:"description" desc:"计划描述"`
+}
+type CreateSchedulerResp{
+	BaseResponse
+	Data Scheduler `json:"data"`
+}
+type UpdateSchedulerReq{
+	CreateSchedulerReq
+}
+type UpdateSchedulerResp{
+	CreateSchedulerResp
+}
+type DeleteSchedulerReq{
+	id int `path:"id"`
+}
+type DeleteSchedulerResp{
+	BaseResponse
+}
+type QuerySchedulerReq{
+	PaginationParams
+}
+type QuerySchedulerResp{
+	BaseResponse
+	Data []Scheduler `json:"data"`
+}

@@ -1,0 +1,21 @@
+syntax = "v1"
+
+info(
+	title: "用户中心服务"
+	desc: "用户中心服务"
+	author: "werido"
+	email: "359066432@qq.com"
+	version: "v1"
+)
+
+
+type BaseResponse {
+    Code int `json:"code"`
+    Msg string `json:"msg"`
+    Data interface{} `json:"data"`
+}
+
+type PaginationParams {
+	Page int `query:"page" validate:"required,min=1"`
+	Size int `query:"size" validate:"required,min=1,max=1000"`
+}

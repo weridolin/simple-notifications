@@ -1,0 +1,95 @@
+syntax = "v1"
+
+info(
+	title: "任务配置服务"
+	desc: "任务配置服务"
+	author: "werido"
+	email: "359066432@qq.com"
+	version: "v1"
+)
+
+import (
+	"./type.api"
+)
+
+// 任务配置服务
+@server (
+	// jwt 声明
+	// 如果 key 固定为 “jwt:”，则代表开启 jwt 鉴权声明
+	// value 则为配置文件的结构体名称
+	jwt:JwtAuth
+	
+	// 路由前缀
+	// 如果 key 固定为 “prefix:”
+	// 则代表路由前缀声明，value 则为具体的路由前缀值，字符串中没让必须以 / 开头
+	prefix: api/v1
+	
+	// 路由分组
+	// 如果 key 固定为 “group:”，则代表路由分组声明
+	// value 则为具体分组名称，在 goctl生成代码后会根据此值进行文件夹分组
+	group: task
+	
+	// 中间件
+	// 如果 key 固定为 middleware:”，则代表中间件声明
+	// value 则为具体中间件函数名称，在 goctl生成代码后会根据此值进生成对应的中间件函数
+	// middleware: AuthInterceptor
+	
+	// 超时控制
+	// 如果 key 固定为  timeout:”，则代表超时配置
+	// value 则为具体中duration，在 goctl生成代码后会根据此值进生成对应的超时配置
+	timeout: 10s
+	
+	// 其他 key-value，除上述几个内置 key 外，其他 key-value
+	// 也可以在作为 annotation 信息传递给 goctl 及其插件，但就
+	// 目前来看，goctl 并未使用。
+	// foo: bar
+)
+service tasks{
+	
+	@doc "创建任务"
+	@handler CreateTask
+	post /task (CreateTaskReq) returns (CreateTaskResp)
+	
+	@doc "更新任务"
+	@handler UpdateTask
+	put /task (UpdateTaskReq) returns (UpdateTaskResp)
+	
+	@doc "删除任务"
+	@handler DeleteTask
+	delete /task (DeleteTaskReq) returns (DeleteTaskResp)
+	
+	@doc "查询任务"
+	@handler QueryTask
+	get /task (QueryTaskReq) returns (QueryTaskResp)
+	
+	@doc "绑定task到scheduler"
+	@handler BindTask
+	post /task/bind (BindSchedulerReq) returns (BindSchedulerResp)
+	
+}
+
+// 计划配置
+@server (
+	jwt:JwtAuth
+	prefix: api/v1
+	group: scheduler
+	timeout: 10s
+)
+service tasks{
+	@doc "创建计划"
+	@handler CreateScheduler
+	post /scheduler (CreateSchedulerReq) returns (CreateSchedulerResp)
+	
+	@doc "更新计划"
+	@handler UpdateScheduler
+	put /scheduler (UpdateSchedulerReq) returns (UpdateSchedulerResp)
+	
+	@doc "删除计划"
+	@handler DeleteScheduler
+	delete /scheduler (DeleteSchedulerReq) returns (DeleteSchedulerResp)
+	
+	@doc "查询计划"
+	@handler QueryScheduler
+	get /scheduler (QuerySchedulerReq) returns (QuerySchedulerResp)
+	
+}

@@ -1,0 +1,69 @@
+syntax = "v1"
+
+info(
+	title: "用户中心服务"
+	desc: "用户中心服务"
+	author: "werido"
+	email: "359066432@qq.com"
+	version: "v1"
+)
+
+import (
+	"../../../../common/base.api"
+)
+
+// 用户信息
+type UserInfo {
+	Username     string     `json:"username"`
+	Email        string     `json:"email"`
+	Phone        string     `json:"phone"`
+	Avatar       string     `json:"avatar"`
+	Role         []string   `json:"role"`
+	IsSuperAdmin bool       `json:"is_super_admin"`
+	Age          int        `json:"age"`
+	Gender       int8       `json:"gender"`
+}
+
+type UserInfoWithToken {
+	UserInfo
+	AccessToken  string `json:"access_token"`
+	RefreshToken string `json:"refresh_token"`
+}
+
+// 注册请求
+type RegisterReq {
+    Email   string `form:"email"`
+    Password string `form:"password"`
+    Username string `form:"username"`
+}
+
+type RegisterResp {
+	BaseResponse
+	Data UserInfo `json:"data"`
+}
+
+// 登录/出请求
+
+type LoginReq {
+		Count   string `json:"count" form:"count" binding:"required"`
+		Password string `json:"password" form:"password" binding:"required"`
+	}
+
+type LoginResp {
+		BaseResponse
+		Data UserInfoWithToken `json:"data"`
+	}
+
+type LogoutResp {
+		BaseResponse
+	}
+
+// 修改用户信息
+type UpdateUserInfoResp {
+	BaseResponse
+	Data UserInfo `json:"data"`
+}
+
+type UpdateUserInfoRep {
+	UserInfo
+}

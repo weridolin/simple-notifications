@@ -4,6 +4,8 @@ import (
 	"context"
 	"os"
 	"path"
+
+	"github.com/zeromicro/go-zero/core/logx"
 )
 
 type FileStorage struct {
@@ -25,18 +27,19 @@ func NewFileStorage(relativePath string, ctx context.Context) *FileStorage {
 func (s *FileStorage) Save(info []interface{}) error {
 	file, err := os.Open(s.Path)
 	if err != nil {
-		logger.Println("open file error -> ", err)
+		// logger.Println("open file error -> ", err)
+		logx.Error("open file error -> ", err)
 		return err
 	}
 	defer file.Close()
 	for _, v := range info {
 		file.WriteString(v.(string))
 	}
-	logger.Println("save info:", info)
+	logx.Info("save info:", info)
 	return nil
 }
 
 func (s *FileStorage) Remove() error {
-	logger.Println("remove info:")
+	logx.Info("remove info:")
 	return nil
 }

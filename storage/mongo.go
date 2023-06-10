@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/weridolin/simple-vedio-notifications/clients"
+	"github.com/zeromicro/go-zero/core/logx"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -30,17 +31,17 @@ func (s *MongoBDStorage) CreateIndex(fields mongo.IndexModel, options *options.C
 }
 
 func (s *MongoBDStorage) Save(info []interface{}) error {
-	logger.Println("save info:", info)
+	logx.Info("save info:", info)
 	collection := s.Client.Client.Database(s.dbName).Collection(s.CollectionName)
 	// todo insert or update?
 	_, err := collection.InsertMany(context.Background(), info)
 	if nil != err {
-		logger.Println("insert result into mongodb error -> ", err)
+		logx.Info("insert result into mongodb error -> ", err)
 	}
 	return nil
 }
 
 func (s *MongoBDStorage) Remove() error {
-	logger.Println("remove info:")
+	logx.Info("remove info:")
 	return nil
 }

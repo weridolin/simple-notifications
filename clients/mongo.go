@@ -3,6 +3,7 @@ package clients
 import (
 	"context"
 
+	"github.com/zeromicro/go-zero/core/logx"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -19,7 +20,7 @@ type MongoBD struct {
 func NewMongoDB(uri string, ctx context.Context) *MongoBD {
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(uri).SetMaxPoolSize(5))
 	if err != nil {
-		logger.Panicln("connect mongodb failed:", err)
+		logx.Info("connect mongodb failed:", err)
 	}
 	return &MongoBD{
 		Uri:    uri,

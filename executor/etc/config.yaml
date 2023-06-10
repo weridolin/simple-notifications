@@ -1,0 +1,22 @@
+# DBUri: "root:werido@tcp(8.131.78.84:3306)/simple_notification?charset=utf8mb4&parseTime=true"
+DefaultTickerMaxSchedulerCount:  100
+DefaultMaxTickerCount:  2
+RabbitMQUri:  amqp://werido:359066432@127.0.0.1:5672/
+EmailConsumerCount:  3
+EmailMessageAckTimeOut:  3600000
+EmailMessageDlxExchangeName:  dlx.email.nofify.exchange
+EmailMessageDlxQueueName:  dlx.email.nofify.queue
+EmailMessageExchangeName:  consumer.email.nofify.exchange
+EmailMessageQueueName:  consumer.email.nofify.queue
+Storage:
+  StorageType:  mongodb
+  StorageParams:
+    MongoDbUri:  mongodb://admin:admin@localhost:27017/
+    MongoDbName:  SimpleNotification
+
+
+  #监控
+Prometheus:
+  Host: "0.0.0.0"
+  Port: 4002
+  Path: /metrics

@@ -6,14 +6,11 @@ package clients
 
 import (
 	"github.com/streadway/amqp"
-	config "github.com/weridolin/simple-vedio-notifications/configs"
+	"github.com/zeromicro/go-zero/core/logx"
+	// config "github.com/weridolin/simple-vedio-notifications/configs"
 )
 
-var logger = config.GetLogger()
-
-var appConfig = config.GetAppConfig()
-
-//rabbitMQ结构体
+// rabbitMQ结构体
 type RabbitMQ struct {
 	conn    *amqp.Connection
 	channel *amqp.Channel
@@ -23,10 +20,10 @@ type RabbitMQ struct {
 	ID string
 }
 
-//创建结构体实例
-func NewRabbitMQ(id string) *RabbitMQ {
-	MQURL := config.GetAppConfig().RabbitMQUri
-	instance := &RabbitMQ{Mqurl: MQURL, ID: id}
+// 创建结构体实例
+func NewRabbitMQ(id string, uri string) *RabbitMQ {
+	// MQURL := config.GetAppConfig().RabbitMQUri
+	instance := &RabbitMQ{Mqurl: uri, ID: id}
 	var err error
 	//获取connection
 	instance.conn, err = amqp.Dial(instance.Mqurl)
@@ -86,22 +83,22 @@ func (r *RabbitMQ) ExchangeBindQueue(queue, routeKey, exchange string) *RabbitMQ
 	return r
 }
 
-//断开channel 和 connection
+// 断开channel 和 connection
 func (r *RabbitMQ) Destory() {
-	logger.Println("client destory", r.ID)
+	logx.Info("client destory", r.ID)
 	r.channel.Close()
 	r.conn.Close()
 }
 
-//错误处理函数
+// 错误处理函数
 func (r *RabbitMQ) failOnErr(err error, message string) {
 	if err != nil {
 		// log.Fatalf("%s:%s", message, err)
-		logger.Panicln("rabbitmq error ->", err, message)
+		logx.Error("rabbitmq error ->", err, message)
 	}
 }
 
-//话题模式发送消息
+// 话题模式发送消息
 func (r *RabbitMQ) Publish(exchange, key string, message []byte) {
 	//2.发送消息
 	err := r.channel.Publish(
@@ -119,10 +116,10 @@ func (r *RabbitMQ) Publish(exchange, key string, message []byte) {
 
 }
 
-//话题模式接受消息
-//要注意key,规则
-//其中“*”用于匹配一个单词，“#”用于匹配多个单词（可以是零个）
-//匹配 kuteng.* 表示匹配 kuteng.hello, kuteng.hello.one需要用kuteng.#才能匹配到
+// 话题模式接受消息
+// 要注意key,规则
+// 其中“*”用于匹配一个单词，“#”用于匹配多个单词（可以是零个）
+// 匹配 kuteng.* 表示匹配 kuteng.hello, kuteng.hello.one需要用kuteng.#才能匹配到
 func (r *RabbitMQ) ReceiveTopic(queue string, callback func(msg []byte) error) {
 
 	//消费消息
@@ -143,7 +140,7 @@ func (r *RabbitMQ) ReceiveTopic(queue string, callback func(msg []byte) error) {
 		for d := range messages {
 			err := callback(d.Body)
 			if err != nil {
-				logger.Println("consumer email notify message error ", err)
+				logx.Info("consumer email notify message error ", err)
 				d.Reject(false) // 拒绝消息，requeue为true会重新放回队列，否则放回死信队列
 			} else {
 				d.Ack(false) // false确认当前消息,true确认所有未确认的消息,未确认的消息状态未un ack，等到客户端重新连接后会变为ready,超时的话会进入死信队列

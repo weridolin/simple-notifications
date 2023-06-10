@@ -1,0 +1,23 @@
+Name: emailNotifier
+Host: 0.0.0.0
+Port: 8082
+DBUri: "root:werido@tcp(8.131.78.84:3306)/simple_notification?charset=utf8mb4&parseTime=true"
+Logger:
+  Level: debug
+  # Path: /var/log/users.log
+  # MaxSize: 100
+  # MaxBackups: 10
+  # MaxAge: 30
+  ServiceName: consumer-emailNotifier-rest-api
+  MODE: console
+  Encoding: plain
+JwtAuth:
+  AccessSecret: ae0536f9-6450-4606-8e13-5a19ed505da0
+  AccessExpire: 36000
+
+
+  #监控
+Prometheus:
+  Host: 0.0.0.0
+  Port: 4007
+  Path: /metrics
