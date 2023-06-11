@@ -89,6 +89,7 @@ services:
       TZ: Asia/Shanghai
     volumes:
       - ./deploy/prometheus/server/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./deploy/prometheus/rules:/etc/prometheus/rules
       - ./data/prometheus/data:/prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
@@ -100,8 +101,25 @@ services:
     networks:
       - simple_notifications
 
-    extra_hosts:
-      - host.docker.internal:host-gateway
+  # node-exporter:
+  #     image: prom/node-exporter
+  #     ports:
+  #       - '9100:9100'
+  #     networks:
+  #       - simple_notifications            
+
+  alertmanager:
+      image: prom/alertmanager
+      privileged: true
+      volumes:
+            - ./deploy/prometheus/server/alertmanager.yml:/alertmanager.yml
+      command:
+          - '--config.file=/alertmanager.yml'
+      ports:
+          - '9093:9093'
+      networks:
+        - simple_notifications          
+
   #查看prometheus监控数据 - Grafana to view Prometheus monitoring data
   grafana:
     image: grafana/grafana:8.0.6
@@ -118,6 +136,8 @@ services:
         - "3001:3000"
     networks:
         - simple_notifications
+
+
 
 #  #搜集kafka业务日志、存储prometheus监控数据 - Kafka for collecting business logs and storing Prometheus monitoring data
   elasticsearch:
@@ -155,7 +175,6 @@ services:
   #消费kafka中filebeat收集的数据输出到es - The data output collected by FileBeat in Kafka is output to ES
   go-stash:
     image: kevinwan/go-stash:1.0 # if you "macOs intel" or "linux amd"
-#    image: kevinwan/go-stash:1.0-arm64 #  if you "macOs m1" or "linux arm"
     container_name: go-stash
     environment:
       # 时区上海 - Time zone Shanghai (Change if needed)

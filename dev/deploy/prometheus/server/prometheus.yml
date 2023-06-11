@@ -1,8 +1,12 @@
-global:
+global: # 全局配置
   # 采集周期
   scrape_interval: 10s
   external_labels:
     monitor: 'codelab-monitor'
+
+rule_files: # 报警规则 
+  # - 'alert.rules' 指定我们希望普罗米修斯服务器加载的任何规则的位置
+  - '/etc/prometheus/rules/*.yml'
 
 scrape_configs:
   # 自身监测
@@ -35,7 +39,6 @@ scrape_configs:
           app: consumer-rest-api
           env: dev
 
-
   - job_name: 'executor'
     static_configs:
       - targets: ['servers:4002' ]
@@ -51,3 +54,10 @@ scrape_configs:
           job: consumer
           app: consumer
           env: dev
+
+## 告警模块
+alerting:
+  alertmanagers:
+  - static_configs:
+    - targets:
+      - alertmanager:9093

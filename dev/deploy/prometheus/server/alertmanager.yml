@@ -1,0 +1,30 @@
+global:
+  resolve_timeout: 5m
+  # 发送告警的邮箱账号配置
+  smtp_from: ${DEFAULT_SENDER}
+  smtp_smarthost: smtp.qq.com:587
+  smtp_auth_username: ${DEFAULT_SENDER}
+  smtp_auth_password: ${DEFAULT_PWD}
+  smtp_require_tls: true
+route:
+  # 告警的路由规则，支持多级路由和收敛功能，具体参数含义后面再讲
+  group_by: ['job']
+  group_wait: 15s
+  group_interval: 5m
+  repeat_interval: 12h
+  # 默认的告警接收方式
+  receiver: webhook
+  routes:
+  # 匹配到特定条件后，指定使用某种告警接收方式
+  - match_re:
+      severity: warning|error|critical
+    receiver: email
+# 告警接收者的配置
+receivers:
+- name: webhook
+  webhook_configs:
+  # webhook测试，后续增加
+  - url: https://webhook.site/fd6056bd-dac2-42fb-995a-6f2ec1332602
+- name: email
+  email_configs:
+  - to: ${DEFAULT_SENDER}
