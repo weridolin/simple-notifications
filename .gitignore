@@ -20,4 +20,4 @@
 dev/database/*
 
 dev/data/*
-dev/deploy/*
+data/*

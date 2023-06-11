@@ -1,0 +1,53 @@
+global:
+  # 采集周期
+  scrape_interval: 10s
+  external_labels:
+    monitor: 'codelab-monitor'
+
+scrape_configs:
+  # 自身监测
+  - job_name: 'prometheus'
+    scrape_interval: 5s  #global catch time
+    static_configs:
+      - targets: ['127.0.0.1:9090']
+
+  - job_name: 'user-rest-api'
+    static_configs:
+      - targets: ['servers:4008' ]
+        labels:
+          job: user-rest-api
+          app: user-rest-api
+          env: dev
+
+  - job_name: 'tasks-rest-api'
+    static_configs:
+      - targets: ['servers:4009' ]
+        labels:
+          job: tasks-rest-api
+          app: tasks-rest-api
+          env: dev
+
+  - job_name: 'consumer-rest-api'
+    static_configs:
+      - targets: ['servers:4007' ]
+        labels:
+          job: consumer-rest-api
+          app: consumer-rest-api
+          env: dev
+
+
+  - job_name: 'executor'
+    static_configs:
+      - targets: ['servers:4002' ]
+        labels:
+          job: executor
+          app: executor
+          env: dev
+
+  - job_name: 'consumer'
+    static_configs:
+      - targets: ['servers:4003' ]
+        labels:
+          job: consumer
+          app: consumer
+          env: dev
