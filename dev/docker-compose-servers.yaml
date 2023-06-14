@@ -17,7 +17,7 @@ services:
       - "10080:8080"
       - "10081:8081"
       - "10082:8082"
-
+      - "4008:4008"
     networks:
       - simple_notifications
 

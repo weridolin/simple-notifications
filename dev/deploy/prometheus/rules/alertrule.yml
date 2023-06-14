@@ -1,12 +1,52 @@
 groups:
+  # - name: user-rest-api-alert
+  #   rules:
+  #   - alert: user-rest-api-down # 警报规则的名称
+  #     expr: user-rest-api:up == 0 # 使用PromQL表达式完成的警报触发条件，用于计算是否有满足触发条件
+  #     for: 1m  # 持续多久时间后触发警报,用于表示只有当触发条件持续一段时间后才发送告警。在等待期间新产生告警的状态为pending。
+  #     labels:
+  #       severity: 'critical' # 自定义标签，允许自行定义标签附加在警报上
+  #     annotations: # 用来设置有关警报的一组描述信息，其中包括自定义的标签，以及expr计算后的值,比如报警信息
+  #       summary: "instance: {{ $labels.instance }} 宕机了"
+  #       description: "instance: {{ $labels.instance }} \n- job: {{ $labels.job }} 关机了， 时间已经1分钟了。"
+  #       value: "{{ $value }}"
+  #       instance: "{{ $labels.instance }}"
+    # - alert: testAlert
+    #   expr: go_goroutines >31
+    #   for: 1m
+    #   labels:
+    #     severity: page
+    #   annotations:
+    #     summary: "Instance {{ $labels.instance }} test test"
+    #     description: "{{ $labels.instance }}  test test (current value: {{ $value }})"
+
+  - name: servers-ups
+    rules:
+    - alert: servers-up # 内部服务上线通知
+      expr: up{type="internal-server"} == 1 # 使用PromQL表达式完成的警报触发条件，用于计算是否有满足触发条件
+      for: 1m  # 持续多久时间后触发警报
+      labels:
+        type: 'internal-server' # 自定义标签，允许自行定义标签附加在警报上
+      annotations: # 用来设置有关警报的一组描述信息，其中包括自定义的标签，以及expr计算后的值,
+        summary: "Instance {{ $labels.instance }} 上线了"
+
+    - alert: servers-up # 内部服务下线通知
+      expr: up{type="internal-server"} == 0 # 使用PromQL表达式完成的警报触发条件，用于计算是否有满足触发条件
+      for: 1m  # 持续多久时间后触发警报
+      labels:
+        type: 'internal-server' # 自定义标签，允许自行定义标签附加在警报上
+      annotations: # 用来设置有关警报的一组描述信息，其中包括自定义的标签，以及expr计算后的值,
+        summary: "Instance {{ $labels.instance }} 下线了"
+
+
   - name: prometheus-alert  # 报警规则组名称
     rules:
     - alert: prometheus-down # 警报规则的名称
       expr: prometheus:up == 0 # 使用PromQL表达式完成的警报触发条件，用于计算是否有满足触发条件
-      for: 1m 
+      for: 1m  # 持续多久时间后触发警报
       labels:
         severity: 'critical' # 自定义标签，允许自行定义标签附加在警报上
-      annotations: # 用来设置有关警报的一组描述信息，其中包括自定义的标签，以及expr计算后的值
+      annotations: # 用来设置有关警报的一组描述信息，其中包括自定义的标签，以及expr计算后的值,比如报警信息
         summary: "instance: {{ $labels.instance }} 宕机了"
         description: "instance: {{ $labels.instance }} \n- job: {{ $labels.job }} 关机了， 时间已经1分钟了。"
         value: "{{ $value }}"

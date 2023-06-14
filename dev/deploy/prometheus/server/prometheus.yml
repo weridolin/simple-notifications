@@ -15,10 +15,21 @@ scrape_configs:
     static_configs:
       - targets: ['127.0.0.1:9090']
 
+  - job_name: 'alertManager'
+    scrape_interval: 5s  #global catch time
+    static_configs:
+      - targets: ['alertmanager:9093']     
+
+    # 采集node exporter监控数据
+  # - job_name: 'node'
+  #   static_configs:
+  #     - targets: ['node-exporter:9100']
+
   - job_name: 'user-rest-api'
     static_configs:
       - targets: ['servers:4008' ]
         labels:
+          type: internal-server
           job: user-rest-api
           app: user-rest-api
           env: dev
@@ -27,6 +38,7 @@ scrape_configs:
     static_configs:
       - targets: ['servers:4009' ]
         labels:
+          type: internal-server
           job: tasks-rest-api
           app: tasks-rest-api
           env: dev
@@ -38,6 +50,8 @@ scrape_configs:
           job: consumer-rest-api
           app: consumer-rest-api
           env: dev
+          type: internal-server
+
 
   - job_name: 'executor'
     static_configs:
@@ -46,6 +60,7 @@ scrape_configs:
           job: executor
           app: executor
           env: dev
+          type: internal-server
 
   - job_name: 'consumer'
     static_configs:
@@ -54,6 +69,9 @@ scrape_configs:
           job: consumer
           app: consumer
           env: dev
+          type: internal-server
+
+
 
 ## 告警模块
 alerting:

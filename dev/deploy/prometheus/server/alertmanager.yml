@@ -1,30 +1,65 @@
 global:
-  resolve_timeout: 5m
+  # 
+  resolve_timeout: 5m  #当告警的状态有firing变为resolve的以后还要呆多长时间，才宣布告警解除
   # 发送告警的邮箱账号配置
   smtp_from: ${DEFAULT_SENDER}
   smtp_smarthost: smtp.qq.com:587
   smtp_auth_username: ${DEFAULT_SENDER}
   smtp_auth_password: ${DEFAULT_PWD}
   smtp_require_tls: true
-route:
-  # 告警的路由规则，支持多级路由和收敛功能，具体参数含义后面再讲
-  group_by: ['job']
-  group_wait: 15s
-  group_interval: 5m
-  repeat_interval: 12h
-  # 默认的告警接收方式
+
+route: #告警内容从这里进入，寻找自己应该用那种策略发送出去
+  group_by: ['job','user'] # 足group_by中定义标签名称，那么这些告警将会合并为一个通知发送给接收器。
+  group_wait: 15s # 同一组的告警发出前要等待多少秒，这个是为了把更多的告警一个批次发出去
+  group_interval: 5m # 同一组的多批次告警间隔多少秒后，才能发出。
+  repeat_interval: 12h # 重复的告警要等待多久后才能再次发出去。
+  
+  ## 一级的receiver，也就是默认的receiver，当告警进来后没有找到任何子节点和自己匹配，就用这个receiver。
   receiver: webhook
+
+  # # 告警会从这里开始匹配，匹配到一层，则发送，如果 continue 为 true,发送完继续详细匹配，否则发送完就直接结束
+  # # 告警中包含service标签且值为mysql或者mongodb
+  # # 告警中包含severity标签切值为warning或者error或者critical
   routes:
-  # 匹配到特定条件后，指定使用某种告警接收方式
-  - match_re:
-      severity: warning|error|critical
+  - match_re: 
+      severity: warning|error|critical   
     receiver: email
-# 告警接收者的配置
+
+  # # 规则判断当前告警中是否存在[标签名]并且其值等于[标签值]
+  # # 告警中包含service标签且值为mysql或者mongodb
+  - match: 
+      service: mysql|mongodb 
+    receiver: webhook
+
 receivers:
-- name: webhook
-  webhook_configs:
-  # webhook测试，后续增加
-  - url: https://webhook.site/fd6056bd-dac2-42fb-995a-6f2ec1332602
-- name: email
-  email_configs:
-  - to: ${DEFAULT_SENDER}
+  - name: webhook
+    webhook_configs:
+    # webhook测试，后续增加
+    - url: https://webhook.site/fd6056bd-dac2-42fb-995a-6f2ec1332602
+  - name: email
+    email_configs:
+    - to: ${DEFAULT_SENDER}
+      send_resolved: true
+      headers:
+        subject: "[operations] 报警邮件"
+        from: "警报中心"
+        to: ${DEFAULT_SENDER}
+
+# inhibit_rules:
+  # 通过匹配源告警来抑制目的告警。比如说当我们的主机挂了，可能引起主机上的服务，数据库，中间件等一些告警，
+  # 假如说后续的这些告警相对来说没有意义，我们可以用抑制项这个功能，让Prometheus只发出主机挂了的告警。
+  # 当集群中的某一个主机节点异常宕机导致告警NodeDown被触发，同时在告警规则中定义了告警级别severity=critical。由于主机异常宕机，该主机上部署的所有服务，
+  # 中间件会不可用并触发报警。根据抑制规则的定义，如果有新的告警级别为severity=critical，
+  # 并且告警中标签node的值与NodeDown告警的相同，则说明新的告警是由NodeDown导致的，则启动抑制机制停止向接收器发送通知
+  # - source_match:
+  #     alertname: NodeDown
+  #     severity: critical
+  #   target_match:
+  #     severity: critical
+  #   equal:
+  #     - node
+
+
+
+# templates:
+  # 用于定义告警通知时的模板，如HTML模板，邮件模板等；
