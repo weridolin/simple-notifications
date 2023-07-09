@@ -44,6 +44,16 @@ func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
 				Path:    "/user/logout",
 				Handler: user.LogoutHandler(serverCtx),
 			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/auth/token/refresh",
+				Handler: user.TokenRefreshHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
+				Path:    "/auth/token/validate",
+				Handler: user.TokenValidateHandler(serverCtx),
+			},
 		},
 		rest.WithJwt(serverCtx.Config.JwtAuth.AccessSecret),
 		rest.WithPrefix("/api/v1"),

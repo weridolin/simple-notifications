@@ -10,4 +10,4 @@ WORKDIR /app
 COPY . /app
 
 # 设置go代理
-ENV  GO111MODULE=on GOPROXY=https://goproxy.io,direct
+ENV  GO111MODULE=on GOPROXY=https://goproxy.cn/,direct

@@ -49,4 +49,12 @@ service users {
 	@handler logout
 	post /user/logout returns (LogoutResp)
 	
+	@doc "token refresh"
+	@handler tokenRefresh
+	post /auth/token/refresh (RefreshTokenReq) returns (RefreshTokenResp)
+	
+	@doc "token validate"
+	@handler tokenValidate
+	get /auth/token/validate (ValidateTokenReq) returns (ValidateResp)
+	
 }

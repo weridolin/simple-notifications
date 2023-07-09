@@ -2,9 +2,9 @@ package svc
 
 import (
 	"github.com/weridolin/simple-vedio-notifications/servers/users/cmd/rest/internal/config"
+	"github.com/zeromicro/go-zero/core/logx"
 
 	"github.com/weridolin/simple-vedio-notifications/servers/users/models"
-	"github.com/zeromicro/go-zero/core/logx"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
@@ -17,8 +17,8 @@ type ServiceContext struct {
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
-	logx.SetUp(c.Logger.LogConf)
-	db, err := gorm.Open(mysql.Open(c.DBUri), &gorm.Config{
+
+	db, err := gorm.Open(mysql.Open("root:werido@tcp(8.131.78.84:3306)/simple_notification?charset=utf8mb4&parseTime=true"), &gorm.Config{
 		NamingStrategy: schema.NamingStrategy{
 			// TablePrefix:   "auth_", // 表名前缀，`User` 的表名应该是 `t_users`
 			SingularTable: true, // 使用单数表名，启用该选项，此时，`User` 的表名应该是 `t_user`

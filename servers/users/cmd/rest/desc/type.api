@@ -45,8 +45,8 @@ type RegisterResp {
 // 登录/出请求
 
 type LoginReq {
-		Count   string `json:"count" form:"count" binding:"required"`
-		Password string `json:"password" form:"password" binding:"required"`
+		Count   string `form:"count"`
+		Password string `form:"password"`
 	}
 
 type LoginResp {
@@ -66,4 +66,30 @@ type UpdateUserInfoResp {
 
 type UpdateUserInfoRep {
 	UserInfo
+}
+
+
+/**************** token相关    ***************8*/
+
+type RefreshTokenPayload {
+	AccessToken string `json:"access_token"`
+	RefreshToken string `json:"refresh_token"`	
+}
+
+type RefreshTokenResp{
+	BaseResponse
+	Data RefreshTokenPayload `json:"data"`
+}
+
+type ValidateResp{
+	BaseResponse
+	Data UserInfo `json:"data"`
+}
+
+type ValidateTokenReq {
+	Authorization string `header:"authorization"`
+}
+
+type RefreshTokenReq {
+	Authorization string `header:"authorization"`
 }

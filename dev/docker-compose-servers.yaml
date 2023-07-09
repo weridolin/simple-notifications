@@ -4,6 +4,7 @@ services:
     build: 
       context: ../
       dockerfile: ./dev/Dockerfile
+    container_name: go-apps
     command:       
       - /bin/bash
       - -c
@@ -18,11 +19,19 @@ services:
       - "10081:8081"
       - "10082:8082"
       - "4008:4008"
+      - "8080:8080"
+
+    # networks:
+    #   - simple_notifications
     networks:
-      - simple_notifications
+      - default
+# networks:
+#   simple_notifications:
+#     driver: bridge
+#     external:
+#       name: simple_notifications
 
 networks:
-  simple_notifications:
-    driver: bridge
-    external:
-      name: simple_notifications
+  default:
+    name: kong-net
+    external: true
